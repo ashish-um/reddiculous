@@ -7,7 +7,8 @@ import ImageCard from "./ImageCard";
 import VideoCard from "./VideoCard";
 import EmbedVideo from "./EmbedVideo";
 import GalleryCard from "./GalleryCard";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+// import { spinner } from "../../public/spinner2.gif";
 
 function Posts({ setParam }) {
   const [data, setData] = useState([]);
@@ -15,10 +16,8 @@ function Posts({ setParam }) {
   const [clicked, SetClicked] = useState(false);
   const [reqError, SetReqError] = useState("");
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [searchValue, SetSearchValue] = useState("");
   const loading = useRef(false);
   const { sub } = useParams();
-  const navigate = useNavigate();
   useEffect(() => {
     // set State Default
     setParam(sub ? `r/${sub}` : "r/all");
@@ -471,12 +470,12 @@ function Posts({ setParam }) {
               "" // if auto mod: null
             );
           })}
-          <img src="../assets/spinner2.gif" width="100px" height="100px" />{" "}
+          <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />{" "}
         </>
       ) : reqError ? (
         <h1>Error: {reqError}</h1>
       ) : (
-        <img src="../assets/spinner2.gif" width="100px" height="100px" />
+        <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
       )}
     </div>
   );
