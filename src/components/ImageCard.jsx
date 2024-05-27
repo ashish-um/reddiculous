@@ -8,7 +8,7 @@ function ImageCard(props) {
       <img
         // loading=""
         width={"100%"}
-        height={400}
+        height={"100%"}
         style={{ objectFit: "contain" }}
         src={props.preview}
       />

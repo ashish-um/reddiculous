@@ -1,21 +1,86 @@
+:root {
+  --max-video-height: 600px;
+  --max-image-height: 550px;
+  --body-background: #1a1625;
+  --card-background: #2f2b3a;
+  --img-border-radius: 12px;
+  --video-border-radius: 12px;
+  --primary-color: #a688fa;
+}
+
 * {
   margin: 0;
   padding: 0;
   color-scheme: dark;
+  -webkit-tap-highlight-color: transparent;
 }
 body {
-  background: rgb(47, 47, 70);
+  background: var(--body-background);
 }
 .header {
-  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  /* background: var(--body-background) 25%; */
+  padding: 0 20px;
+  width: -webkit-fill-available;
   display: flex;
   align-items: center;
   justify-content: space-evenly;
 }
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: #3c3259cf;
+  /* opacity: 0.4; */
+  backdrop-filter: blur(15px);
+  z-index: -20;
+}
+
+form {
+  height: 35px;
+}
+form input {
+  width: 100%;
+  height: 100%;
+  padding: 5px 10px 5px 25px;
+  /* padding-left: 30px; */
+  border-radius: var(--img-border-radius);
+  font-size: 20px;
+  outline: none;
+  border: none;
+  border-bottom: 1px solid var(--primary-color);
+  background: var(--card-background);
+  box-sizing: border-box;
+}
+form input:focus {
+  border: 1px solid var(--primary-color);
+}
+
+.sub-input {
+  position: relative;
+}
+
+.sub-input::before {
+  content: "r/";
+  font-size: 25px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 10px;
+}
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: auto;
+  /* padding: 0 10%; */
+  width: 82%;
+  /* min-width: 200px; */
+  max-width: 800px;
+  /* padding: 0px 40px; */
 }
 
 hr {
@@ -28,17 +93,28 @@ hr {
   align-items: center;
   justify-content: space-between;
   margin: 10px;
-  border: 3px solid;
-  padding: 15px;
-  width: 600px;
-  border-radius: 7px;
+  /* border: 3px solid; */
+  padding: 25px;
+  gap: 10px;
+  /* max-width: 800px; */
+  width: 100%;
+  /* min-width: 200px; */
+  border-radius: 17px;
   font-size: large;
+  background: var(--card-background);
 }
 .img-container {
   position: relative;
   width: 100%;
   display: flex;
   justify-content: center;
+  border-radius: var(--img-border-radius);
+  overflow: hidden;
+  /* max-height: 400px; */
+}
+.img-container img {
+  max-height: var(--max-image-height);
+  z-index: 2;
 }
 
 .img-bg::before {
@@ -56,7 +132,7 @@ hr {
   position: absolute;
   background-repeat: no-repeat;
   background-position: center;
-  z-index: -100;
+  z-index: 1;
   display: block;
   content: "";
   width: 100%;
@@ -64,17 +140,21 @@ hr {
 }
 
 .video-holder {
+  border-radius: var(--video-border-radius);
+  overflow: hidden;
+  max-height: var(--max-video-height);
   width: 100%;
   background-color: #00000038;
 }
+
+.video-player > div > video {
+  max-height: var(--max-video-height);
+}
+
 .video-player {
-  /* width: 90%; */
-  height: 700px;
+  height: 100%;
 }
 .carousel {
-  /* position: absolute;
-  top: 0; */
-  /* width: 100%; */
   flex: 1 0 100%;
   height: 100%;
   opacity: 1;
@@ -108,25 +188,43 @@ hr {
   margin: 10px;
   /* cursor: pointer; */
   text-shadow: rgba(0, 0, 0, 0.398) -2px 2px 3px;
+  transition: 20ms;
 }
-.left-arrow:hover {
+.arrow:hover {
+  background: rgba(128, 128, 128, 0.003);
+  cursor: pointer;
+}
+
+.left-arrow:active {
   transform: rotate(180deg) scale(1.1);
-  /* background-color: rgba(99, 99, 99, 0.453); */
-  cursor: pointer;
 }
-.right-arrow:hover {
+.right-arrow:active {
   transform: scale(1.1);
-  /* background-color: rgba(99, 99, 99, 0.453); */
-  cursor: pointer;
 }
 
 .left-arrow {
   /* left: 10px; */
   text-shadow: black -2px -2px 3px;
   transform: rotate(180deg);
+  size: -100%;
 }
 .right-arrow {
   right: 0;
+}
+.redirect-link {
+  width: -webkit-fill-available;
+  position: absolute;
+  z-index: 3;
+  font-size: 40px;
+  font-weight: bolder;
+  bottom: 0;
+  text-align: end;
+  border-top: 2px solid white;
+  background: linear-gradient(-90deg, #000000a6, #ffffff80);
+  border-radius: 0 0 var(--img-border-radius) var(--img-border-radius);
+  text-decoration: none;
+  color: white;
+  padding: 10px;
 }
 
 .animate-load {

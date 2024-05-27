@@ -3,6 +3,7 @@ import ReactPlayer from "react-player";
 function VideoCard(props) {
   // console.log(props.img);
 
+  // const []
   const [failsLoading, SetFailsLoading] = useState(false);
   const [play, SetPlay] = useState(false);
 
@@ -12,25 +13,33 @@ function VideoCard(props) {
     // txt.innerHTML = html.replace(`style="position:absolute;"`, "");
     return txt.value;
   }
+  // console.log(props.aspect);
   return (
     <div onCompositionStart={(r) => console.log(r)} className="video-holder">
       <div
         className="video-player"
         onMouseEnter={(e) => SetPlay(true)}
         onMouseLeave={(e) => SetPlay(false)}
-        style={{ height: `${props.height ? props.height : "700px"}` }}
+        // style={{ height: `${props.height ? props.height : "700px"}` }}
+        style={{ aspectRatio: props?.aspect }}
       >
         <ReactPlayer
           // light={<img src={props.img} height="100%" alt="Thumbnail" />}
           muted={props.muted}
           playing={play}
           playsinline={true}
-          url={failsLoading ? props.fallback : props.url}
+          url={
+            failsLoading
+              ? props.fallback
+                ? props.fallback
+                : props.url
+              : props.url
+          }
           width="100%"
           height="100%"
           controls
           onError={(e) => {
-            console.log(`Could Not Play It, switching to fallback ${e}`);
+            // console.log(`Could Not Play It, switching to fallback ${e}`);
             SetFailsLoading(true);
           }}
 

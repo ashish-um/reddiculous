@@ -13,20 +13,21 @@ function Nav({ param }) {
 
   return (
     <div className="header">
-      <h1 style={{ padding: "10px" }}>{param}</h1>
+      <h1 style={{ padding: "10px", fontSize: "25px" }}>{param}</h1>
       <form
         style={{ display: "flex" }}
         action=""
         onSubmit={(e) => handleSubmit(e)}
       >
-        <h1>r/</h1>
-        <input
-          style={{ padding: "4px 6px", fontSize: "large", outline: "none" }}
-          type="search"
-          name=""
-          value={searchValue}
-          onChange={(e) => SetSearchValue(e.target.value)}
-        />
+        {/* <h1>r/</h1> */}
+        <div className="sub-input">
+          <input
+            type="search"
+            name=""
+            value={searchValue}
+            onChange={(e) => SetSearchValue(e.target.value)}
+          />
+        </div>
         {/* <Link to={`/r/${searchValue}`}>Go</Link> */}
       </form>
     </div>

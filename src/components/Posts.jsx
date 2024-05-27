@@ -13,19 +13,21 @@ import { useParams } from "react-router-dom";
 function Posts({ setParam }) {
   const [data, setData] = useState([]);
   const [m_after, setAfter] = useState("");
-  const [clicked, SetClicked] = useState(false);
+  const [clicked, SetClicked] = useState(0);
   const [reqError, SetReqError] = useState("");
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const loading = useRef(false);
   const { sub } = useParams();
+  const prevSub = useRef(sub);
   useEffect(() => {
     // set State Default
     setParam(sub ? `r/${sub}` : "r/all");
     setData([]);
     setAfter("");
     SetReqError("");
-    SetClicked((clicked) => !clicked);
-
+    if (sub != prevSub.current) {
+      SetClicked(clicked == 0 ? 1 : 0);
+    }
     // console.log(true);
     const handleInteraction = () => setHasUserInteracted(true);
     window.addEventListener("click", handleInteraction);
@@ -41,10 +43,7 @@ function Posts({ setParam }) {
     axios
       .request(options)
       .then((response) => {
-        // console.log(
-        //   response.data.data.children.filter((item) => item.data.is_gallery)
-        // );
-        // console.log(response.data.data);
+        console.log(response.data.data);
         setData((data) => [...data, ...response.data.data.children]);
         setAfter(response.data.data.after);
       })
@@ -102,7 +101,7 @@ function Posts({ setParam }) {
     ) {
       if (!loading.current) {
         loading.current = true;
-        SetClicked((clicked) => !clicked);
+        SetClicked((clicked) => clicked + 1);
       }
     }
   };
@@ -139,10 +138,12 @@ function Posts({ setParam }) {
       {data.length ? (
         <>
           {data.map((item, index) => {
-            return item.data.author != "AutoModerator" ? ( // Check if not Automod
-              ((item.data.is_reddit_media_domain && !item.data.is_video) ||
-                item.data.post_hint == "image") && // check if image
-              !item.data.url.endsWith(".gif") ? ( // check if not gif
+            return item.data.author != "AutoModerator" ? (
+              item.data.removal_reason || item.data.removed_by_category ? (
+                "" // Check if not Automod
+              ) : ((item.data.is_reddit_media_domain && !item.data.is_video) ||
+                  item.data.post_hint == "image") && // check if image
+                !item.data.url.endsWith(".gif") ? ( // check if not gif
                 // check if not crosspost
                 <Card
                   date={handleDate(item.data.created)}
@@ -242,9 +243,9 @@ function Posts({ setParam }) {
                     fallbackEmbed={item.data.media_embed.content}
                   />
 
-                  <a href={item.data.url} target="_blank">
+                  {/* <a href={item.data.url} target="_blank">
                     {item.data.url}
-                  </a>
+                  </a> */}
                   {/* <VideoCard url="https://api.redgifs.com/v2/gifs/uniformexperttrout/sd.m3u8" /> */}
                   {/* <div
                     style={{
@@ -271,15 +272,34 @@ function Posts({ setParam }) {
                     item.data.ups / item.data.upvote_ratio - item.data.ups
                   )}
                 >
-                  <EmbedVideo
-                    url={item.data.media_embed.content}
-                    thumbnail={item.data.thumbnail}
-                    aspect={
-                      item.data.thumbnail_width / item.data.thumbnail_height
+                  {console.log(item.data.preview)}
+                  {item.data.crosspost_parent_list.length &&
+                  "reddit_video_preview" in item.data.preview ? (
+                    <>
+                      <VideoCard
+                        muted={!hasUserInteracted}
+                        url={item.data.preview.reddit_video_preview.hls_url}
+                        // url={item.data.preview.reddit_video_preview.hls_url}
+                        // fallback={item.data.media_embed.content}
+                        fallback={
+                          item.data.preview?.reddit_video_preview.hls_url
+                        }
+                      />
+                    </>
+                  ) : (
+                    console.log("Sorry Not Found Previews")
+                  )}
+                  {/* <EmbedVideo
+                    url={
+                      item.data.crosspost_parent_list.length
+                        ? item.data.crosspost_parent_list[0].media_embed.content
+                        : item.data.media_embed.content
                     }
-                  />
+                    thumbnail={item.data.thumbnail}
+                  /> */}
                 </Card>
-              ) : item.data.post_hint == "hosted:video" ? (
+              ) : item.data.post_hint == "hosted:video" ||
+                item.data.is_video ? (
                 <Card
                   date={handleDate(item.data.created)}
                   key={index}
@@ -299,12 +319,6 @@ function Posts({ setParam }) {
                       "&amp;",
                       "&"
                     )}
-                    img={item.data.preview.images[0].source.url.replaceAll(
-                      "amp;",
-                      ""
-                    )}
-                    height={item.data.media.reddit_video.height}
-                    width={item.data.media.reddit_video.width}
                   />
                   {/* <ImageCard preview={item.data.url} /> */}
                 </Card>
@@ -323,7 +337,12 @@ function Posts({ setParam }) {
                     item.data.ups / item.data.upvote_ratio - item.data.ups
                   )}
                 >
-                  <VideoCard url={item.data.url} height="400px" />
+                  <VideoCard
+                    url={item.data.url}
+                    aspect={
+                      item.data.media_embed.width / item.data.media_embed.height
+                    }
+                  />
                   {/* <ImageCard preview={item.data.url} /> */}
                 </Card>
               ) : item.data.is_gallery ? (
@@ -393,26 +412,7 @@ function Posts({ setParam }) {
                       position: "relative",
                     }}
                   >
-                    <i
-                      style={{
-                        width: "-webkit-fill-available",
-                        position: "absolute",
-                        zIndex: "3",
-                        fontSize: "40px",
-                        fontWeight: "bolder",
-                        bottom: "0",
-                        textAlign: "end",
-                        borderTop: "2px solid white",
-                        background:
-                          "linear-gradient(-90deg, #000000a6, #ffffff80)",
-
-                        // backdropFilter: "blur(8px)",
-                        textDecoration: "none",
-                        color: "white",
-                        padding: "10px",
-                      }}
-                      className="bx bx-link-external"
-                    ></i>
+                    <i className="bx bx-link-external redirect-link"></i>
                     {/* <span
                       style={{
                         position: "absolute",
