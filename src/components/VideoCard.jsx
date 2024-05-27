@@ -1,25 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactPlayer from "react-player";
 function VideoCard(props) {
   // console.log(props.img);
 
+  const [failsLoading, SetFailsLoading] = useState(false);
+  const [play, SetPlay] = useState(false);
+
+  function decodeHtml(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    // txt.innerHTML = html.replace(`style="position:absolute;"`, "");
+    return txt.value;
+  }
   return (
-    <div
-      onCompositionStart={(r) => console.log(r)}
-      className="video-holder"
-      onClick={(e) =>
-        console.log(`page:${e.pageY} client:${e.clientY} screen:${e.screenY}`)
-      }
-    >
-      <div className="video-player">
+    <div onCompositionStart={(r) => console.log(r)} className="video-holder">
+      <div
+        className="video-player"
+        onMouseEnter={(e) => SetPlay(true)}
+        onMouseLeave={(e) => SetPlay(false)}
+        style={{ height: `${props.height ? props.height : "700px"}` }}
+      >
         <ReactPlayer
           // light={<img src={props.img} height="100%" alt="Thumbnail" />}
-          // playing={true}
-
-          url={props.url}
+          muted={props.muted}
+          playing={play}
+          playsinline={true}
+          url={failsLoading ? props.fallback : props.url}
           width="100%"
           height="100%"
           controls
+          onError={(e) => {
+            console.log(`Could Not Play It, switching to fallback ${e}`);
+            SetFailsLoading(true);
+          }}
+
           // style={{ width: "100px" }}
           // width={300}
         />

@@ -7,14 +7,14 @@ function Card(props) {
         dangerouslySetInnerHTML={{ __html: `${props.title} (${props.user})` }}
       ></h2>
       {props.children}
-      <p>
+      <p style={{ display: "flex", gap: "10px" }}>
         {/* <span>Created: {handleDate(item.data.created)} hrs ago</span> */}
-        <span style={{ color: "red" }}>{props.fullname}</span>
-        <br />
+        {/* <span style={{ color: "red" }}>{props.fullname}</span> */}
+
         <span>Date: {props.date}</span>
-        <br />
+
         <span>Comments: {props.comments}</span>
-        <br />
+
         <span>
           Ups: {props.ups}, down:{props.downs}
         </span>
