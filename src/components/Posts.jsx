@@ -10,18 +10,25 @@ import GalleryCard from "./GalleryCard";
 import { useParams } from "react-router-dom";
 // import { spinner } from "../../public/spinner2.gif";
 
-function Posts({ setParam }) {
+function Posts({ setParam, setCommentsData }) {
   const [data, setData] = useState([]);
   const [m_after, setAfter] = useState("");
   const [clicked, SetClicked] = useState(0);
   const [reqError, SetReqError] = useState("");
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const loading = useRef(false);
-  const { sub } = useParams();
+  const { sub, id, post } = useParams();
   const prevSub = useRef(sub);
+  var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
   useEffect(() => {
     // set State Default
-    setParam(sub ? `r/${sub}` : "r/all");
+    if (setParam) {
+      setParam(sub ? `r/${sub}` : "r/all");
+    }
+    if (post && id) {
+      console.log("Entered Post", post);
+      URL = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json`;
+    }
     setData([]);
     setAfter("");
     SetReqError("");
@@ -38,20 +45,27 @@ function Posts({ setParam }) {
   useEffect(() => {
     var options = {
       method: "GET",
-      url: `https://old.reddit.com/r/${sub ? sub : "all"}.json`,
+      url: URL,
       params: { after: m_after },
     };
     axios
       .request(options)
       .then((response) => {
-        console.log(
-          response.data.data.children.filter(
-            (item) => item.data.crosspost_parent_list?.length > 0
-          )
-        );
-        console.log(response.data.data.children);
-        setData((data) => [...data, ...response.data.data.children]);
-        setAfter(response.data.data.after);
+        // console.log(
+        //   response.data.data.children.filter(
+        //     (item) => item.data.crosspost_parent_list?.length > 0
+        //   )
+        // );
+        if (id && post) {
+          // console.log("checking");
+          // console.log(response.data);
+          setData(response.data[0].data.children);
+          setCommentsData(response.data[1].data.children);
+        } else {
+          // console.log(response.data.data.children);
+          setData((data) => [...data, ...response.data.data.children]);
+          setAfter(response.data.data.after);
+        }
       })
       .catch((reject) => {
         console.log(reject.message);
@@ -62,6 +76,7 @@ function Posts({ setParam }) {
       });
   }, [clicked]);
   //   console.log(sub);
+  console.log(data.length);
 
   function handleDate(l_date) {
     const m_date = new Date(l_date * 1000);
@@ -118,28 +133,6 @@ function Posts({ setParam }) {
   }
   return (
     <div className="container">
-      {/* <div className="header">
-        <h1 style={{ padding: "10px" }}>{sub ? "r/" + sub : "r/all"}</h1>
-        <form
-          style={{ display: "flex" }}
-          action=""
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate(`/r/${searchValue}`, { replace: true });
-            window.location.reload();
-            console.log("Submit", searchValue);
-          }}
-        >
-          <h1>r/</h1>
-          <input
-            style={{ padding: "4px 6px", fontSize: "large", outline: "none" }}
-            type="search"
-            name=""
-            value={searchValue}
-            onChange={(e) => SetSearchValue(e.target.value)}
-          />
-        </form>
-      </div> */}
       {data.length ? (
         <>
           {data.map((item, index) => {
@@ -147,6 +140,7 @@ function Posts({ setParam }) {
             if (item.data.crosspost_parent_list?.length) {
               l_item = item.data.crosspost_parent_list[0];
             }
+
             return l_item.author != "AutoModerator" ? (
               l_item.removal_reason || l_item.removed_by_category ? (
                 "" // Check if not Automod
@@ -158,6 +152,10 @@ function Posts({ setParam }) {
                 !l_item.url.endsWith(".gif") ? ( // check if not gif
                 // check if not crosspost
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -187,6 +185,10 @@ function Posts({ setParam }) {
                 </Card>
               ) : l_item.domain.includes("imgur.com") ? ( // If Imgur
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -214,6 +216,10 @@ function Posts({ setParam }) {
                 </Card>
               ) : l_item.url.endsWith(".gif") ? ( // If Gif
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -231,6 +237,10 @@ function Posts({ setParam }) {
               ) : l_item.post_hint == "rich:video" &&
                 l_item.domain.includes("redgifs.com") ? (
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -272,6 +282,10 @@ function Posts({ setParam }) {
                 </Card>
               ) : l_item.domain.includes("redgifs.com") ? (
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -310,6 +324,10 @@ function Posts({ setParam }) {
                 </Card>
               ) : l_item.post_hint == "hosted:video" || l_item.is_video ? (
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -334,6 +352,10 @@ function Posts({ setParam }) {
               ) : l_item.post_hint == "rich:video" ||
                 l_item.domain.includes("streamable.com") ? (
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -356,6 +378,10 @@ function Posts({ setParam }) {
                 </Card>
               ) : l_item.is_gallery ? (
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -375,6 +401,10 @@ function Posts({ setParam }) {
                 </Card>
               ) : l_item.is_self ? (
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -406,6 +436,10 @@ function Posts({ setParam }) {
                 </Card>
               ) : l_item.post_hint == "link" ? (
                 <Card
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
                   date={handleDate(l_item.created)}
                   key={index}
                   fullname={l_item.author_fullname}
@@ -462,6 +496,10 @@ function Posts({ setParam }) {
                 <>
                   {HandleNot(l_item)}
                   <Card
+                    permalink={l_item.permalink}
+                    spoiler={l_item.spoiler}
+                    over_18={l_item.over_18}
+                    subreddit={l_item.subreddit_name_prefixed}
                     date={handleDate(l_item.created)}
                     key={index}
                     fullname={l_item.author_fullname}
@@ -482,7 +520,9 @@ function Posts({ setParam }) {
               "" // if auto mod: null
             );
           })}
-          <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />{" "}
+          {!(post && id) && (
+            <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
+          )}
         </>
       ) : reqError ? (
         <h1>Error: {reqError}</h1>

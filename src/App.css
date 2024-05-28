@@ -3,9 +3,17 @@
   --max-image-height: 50vh;
   --body-background: #1a1625;
   --card-background: #2f2b3a;
+  --card-element: #46424f;
   --img-border-radius: 12px;
   --video-border-radius: 12px;
   --primary-color: #a688fa;
+  --secondary-color: #25193b;
+  --success-color: green;
+}
+
+a {
+  color: white;
+  text-decoration: none;
 }
 
 * {
@@ -91,6 +99,49 @@ form input:focus {
 
 hr {
   width: -webkit-fill-available;
+}
+
+.card-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  /* flex-wrap: wrap; */
+}
+
+.card-footer {
+  font-size: clamp(15px, 2vw, 18px);
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.card-header-data {
+  font-size: clamp(15px, 2vw, 18px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.label {
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 100vw;
+  background: var(--card-element);
+  display: flex;
+  /* flex-direction: column; */
+  align-items: center;
+}
+
+.separator {
+  width: 1px;
+  margin-inline: 10px;
+  height: 18px;
+  /* height: 100%; */
+
+  background: grey;
 }
 
 .card {
@@ -255,6 +306,12 @@ hr {
 .animate-load {
   animation: fader 800ms;
 }
+
+.animate-shared {
+  opacity: 0;
+  animation: left-right 1s;
+}
+
 @keyframes fader {
   from {
     opacity: 0;
@@ -263,6 +320,25 @@ hr {
   to {
     opacity: 1;
     transform: translate(0);
+  }
+}
+
+@keyframes left-right {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(10px);
   }
 }
 
