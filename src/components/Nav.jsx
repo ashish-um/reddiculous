@@ -13,7 +13,10 @@ function Nav({ param }) {
 
   return (
     <div className="header">
-      <h1 style={{ padding: "10px", fontSize: "25px" }}>{param}</h1>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <img src="/reddiculous/icon_small.png" width={30} height={30} alt="" />
+        <h1 style={{ padding: "10px", fontSize: "25px" }}>{param}</h1>
+      </div>
       <form
         style={{ display: "flex" }}
         action=""

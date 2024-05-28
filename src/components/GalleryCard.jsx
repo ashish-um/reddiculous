@@ -9,7 +9,6 @@ function GalleryCard(props) {
       style={{
         position: "relative",
         width: "100%",
-        height: "400px",
         overflow: "hidden",
       }}
     >

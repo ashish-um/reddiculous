@@ -4,6 +4,7 @@ function Card(props) {
   return (
     <div className="card animate-load">
       <h2
+        className="card-title"
         dangerouslySetInnerHTML={{ __html: `${props.title} (${props.user})` }}
       ></h2>
       {props.children}

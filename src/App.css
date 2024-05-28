@@ -1,6 +1,6 @@
 :root {
   --max-video-height: 600px;
-  --max-image-height: 550px;
+  --max-image-height: 50vh;
   --body-background: #1a1625;
   --card-background: #2f2b3a;
   --img-border-radius: 12px;
@@ -14,6 +14,12 @@
   color-scheme: dark;
   -webkit-tap-highlight-color: transparent;
 }
+
+*::after,
+*::before {
+  display: block;
+}
+
 body {
   background: var(--body-background);
 }
@@ -32,9 +38,9 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-color: #3c3259cf;
+  background-color: var(--body-background);
+  border-bottom: 1px solid var(--primary-color);
   /* opacity: 0.4; */
-  backdrop-filter: blur(15px);
   z-index: -20;
 }
 
@@ -103,6 +109,10 @@ hr {
   font-size: large;
   background: var(--card-background);
 }
+.card-title {
+  font-size: clamp(20px, 2vw, 30px);
+}
+
 .img-container {
   position: relative;
   width: 100%;
@@ -110,9 +120,11 @@ hr {
   justify-content: center;
   border-radius: var(--img-border-radius);
   overflow: hidden;
+  height: 100%;
   /* max-height: 400px; */
 }
 .img-container img {
+  /* height: 100%; */
   max-height: var(--max-image-height);
   z-index: 2;
 }
@@ -158,6 +170,7 @@ hr {
   flex: 1 0 100%;
   height: 100%;
   opacity: 1;
+  align-self: center;
 }
 .carousel-nav {
   position: absolute;
@@ -167,11 +180,13 @@ hr {
   z-index: 3;
   padding: 3px 8px;
   border-radius: 28px;
+  font-size: small;
   background-color: rgba(0, 0, 0, 0.464);
   backdrop-filter: blur(8px);
 }
 .carousel-translate {
   display: flex;
+  height: min(50vh, var(--max-image-height));
   transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .arrow {
@@ -190,6 +205,14 @@ hr {
   text-shadow: rgba(0, 0, 0, 0.398) -2px 2px 3px;
   transition: 20ms;
 }
+
+.arrow::before {
+  content: "";
+  background: red;
+  position: absolute;
+  width: 100%;
+}
+
 .arrow:hover {
   background: rgba(128, 128, 128, 0.003);
   cursor: pointer;
@@ -238,5 +261,11 @@ hr {
   to {
     opacity: 1;
     transform: translate(0);
+  }
+}
+@media only screen and (max-width: 600px) {
+  .img-bg {
+    /* opacity: 0; */
+    display: none;
   }
 }

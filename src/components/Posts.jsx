@@ -27,6 +27,7 @@ function Posts({ setParam }) {
     SetReqError("");
     if (sub != prevSub.current) {
       SetClicked(clicked == 0 ? 1 : 0);
+      window.scrollTo(0, 0);
     }
     // console.log(true);
     const handleInteraction = () => setHasUserInteracted(true);
@@ -134,7 +135,6 @@ function Posts({ setParam }) {
           />
         </form>
       </div> */}
-      <hr />
       {data.length ? (
         <>
           {data.map((item, index) => {
@@ -381,13 +381,17 @@ function Posts({ setParam }) {
                   <div
                     style={{
                       borderRadius: "8px",
-                      width: "90%",
+                      width: "98%",
                       padding: "10px",
                       background: "#00000033",
                       overflow: "overlay",
                     }}
                     dangerouslySetInnerHTML={{
-                      __html: decodeHtml(item.data.selftext_html),
+                      __html: decodeHtml(
+                        item.data.selftext_html
+                          ? item.data.selftext_html?.slice(0, 600) + "..."
+                          : ""
+                      ),
                     }}
                   ></div>
                 </Card>
