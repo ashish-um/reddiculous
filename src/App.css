@@ -180,7 +180,7 @@ hr {
   z-index: 3;
   padding: 3px 8px;
   border-radius: 28px;
-  font-size: small;
+  font-size: clamp(14px, 2vw, 20px);
   background-color: rgba(0, 0, 0, 0.464);
   backdrop-filter: blur(8px);
 }
@@ -194,12 +194,12 @@ hr {
   opacity: 0.8;
   background: transparent;
   border: none;
-  font-size: 50px;
+  font-size: clamp(30px, 5vw, 50px);
   z-index: 3;
   position: absolute;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   top: 40%;
-  padding: 0px 10px;
+  padding: 0px 8px;
   margin: 10px;
   /* cursor: pointer; */
   text-shadow: rgba(0, 0, 0, 0.398) -2px 2px 3px;
@@ -207,10 +207,12 @@ hr {
 }
 
 .arrow::before {
+  z-index: -1;
   content: "";
-  background: red;
+  background: rgba(0, 0, 0, 0.54);
   position: absolute;
-  width: 100%;
+  inset: 0;
+  border-radius: 50vh;
 }
 
 .arrow:hover {
@@ -263,6 +265,27 @@ hr {
     transform: translate(0);
   }
 }
+
+::-webkit-scrollbar {
+  width: 13px;
+}
+::-webkit-scrollbar-track {
+  border-radius: 100vw;
+  background: var(--card-background);
+  margin-block: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--body-background);
+  border-radius: 100vw;
+  min-height: 50px;
+  border: 1px solid var(--card-background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+  border: 2px solid var(--card-background);
+}
+
 @media only screen and (max-width: 600px) {
   .img-bg {
     /* opacity: 0; */

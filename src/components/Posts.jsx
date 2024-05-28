@@ -44,7 +44,12 @@ function Posts({ setParam }) {
     axios
       .request(options)
       .then((response) => {
-        console.log(response.data.data);
+        console.log(
+          response.data.data.children.filter(
+            (item) => item.data.crosspost_parent_list?.length > 0
+          )
+        );
+        console.log(response.data.data.children);
         setData((data) => [...data, ...response.data.data.children]);
         setAfter(response.data.data.after);
       })
@@ -138,113 +143,120 @@ function Posts({ setParam }) {
       {data.length ? (
         <>
           {data.map((item, index) => {
-            return item.data.author != "AutoModerator" ? (
-              item.data.removal_reason || item.data.removed_by_category ? (
+            let l_item = item.data;
+            if (item.data.crosspost_parent_list?.length) {
+              l_item = item.data.crosspost_parent_list[0];
+            }
+            return l_item.author != "AutoModerator" ? (
+              l_item.removal_reason || l_item.removed_by_category ? (
                 "" // Check if not Automod
-              ) : ((item.data.is_reddit_media_domain && !item.data.is_video) ||
-                  item.data.post_hint == "image") && // check if image
-                !item.data.url.endsWith(".gif") ? ( // check if not gif
+              ) : l_item.crosspost_parent_list?.length ? (
+                // { l_item: l_item.crosspost_parent_list[0] }
+                ""
+              ) : ((l_item.is_reddit_media_domain && !l_item.is_video) ||
+                  l_item.post_hint == "image") && // check if image
+                !l_item.url.endsWith(".gif") ? ( // check if not gif
                 // check if not crosspost
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
                   <ImageCard
                     preview={
-                      item.data.post_hint == "image"
-                        ? item.data.preview.images[0].resolutions.length <= 4
-                          ? item.data.preview.images[0].source.url.replaceAll(
+                      l_item.post_hint == "image"
+                        ? l_item.preview.images[0].resolutions.length <= 4
+                          ? l_item.preview.images[0].source.url.replaceAll(
                               "amp;",
                               ""
                             )
-                          : item.data.preview.images[0].resolutions[
-                              item.data.preview.images[0].resolutions.length - 2
+                          : l_item.preview.images[0].resolutions[
+                              l_item.preview.images[0].resolutions.length - 2
                             ].url.replaceAll("amp;", "")
-                        : item.data.url
+                        : l_item.url
                     }
                   />
                 </Card>
-              ) : item.data.domain.includes("imgur.com") ? ( // If Imgur
+              ) : l_item.domain.includes("imgur.com") ? ( // If Imgur
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
                   <ImageCard
                     preview={
-                      item.data.preview.images[0].resolutions.length <= 4
-                        ? item.data.preview.images[0].source.url.replaceAll(
+                      l_item.preview.images[0].resolutions.length <= 4
+                        ? l_item.preview.images[0].source.url.replaceAll(
                             "amp;",
                             ""
                           )
-                        : item.data.preview.images[0].resolutions[
-                            item.data.preview.images[0].resolutions.length - 2
+                        : l_item.preview.images[0].resolutions[
+                            l_item.preview.images[0].resolutions.length - 2
                           ].url.replaceAll("amp;", "")
                     }
                   />
                 </Card>
-              ) : item.data.url.endsWith(".gif") ? ( // If Gif
+              ) : l_item.url.endsWith(".gif") ? ( // If Gif
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
-                  <ImageCard preview={item.data.url} />
+                  <ImageCard preview={l_item.url} />
                 </Card>
-              ) : item.data.post_hint == "rich:video" &&
-                item.data.domain.includes("redgifs.com") ? (
+              ) : l_item.post_hint == "rich:video" &&
+                l_item.domain.includes("redgifs.com") ? (
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
                   <VideoCard
                     muted={!hasUserInteracted}
                     url={
-                      item.data.media.oembed.thumbnail_url.split("files/")[0] +
+                      l_item.media.oembed.thumbnail_url.split("files/")[0] +
                       "sd.m3u8"
                     }
-                    // url={item.data.preview.reddit_video_preview.hls_url}
-                    // fallback={item.data.media_embed.content}
-                    fallback={item.data.preview?.reddit_video_preview.hls_url}
-                    fallbackEmbed={item.data.media_embed.content}
+                    // url={l_item.preview.reddit_video_preview.hls_url}
+                    // fallback={l_item.media_embed.content}
+                    fallback={l_item.preview?.reddit_video_preview.hls_url}
+                    fallbackEmbed={l_item.media_embed.content}
                   />
 
-                  {/* <a href={item.data.url} target="_blank">
-                    {item.data.url}
+                  {/* <a href={l_item.url} target="_blank">
+                    {l_item.url}
                   </a> */}
                   {/* <VideoCard url="https://api.redgifs.com/v2/gifs/uniformexperttrout/sd.m3u8" /> */}
                   {/* <div
@@ -254,36 +266,34 @@ function Posts({ setParam }) {
                       position: "relative",
                     }}
                     dangerouslySetInnerHTML={{
-                      __html: decodeHtml(item.data.media_embed.content),
+                      __html: decodeHtml(l_item.media_embed.content),
                     }}
                   ></div> */}
                 </Card>
-              ) : item.data.domain.includes("redgifs.com") ? (
+              ) : l_item.domain.includes("redgifs.com") ? (
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
-                  {console.log(item.data.preview)}
-                  {item.data.crosspost_parent_list.length &&
-                  "reddit_video_preview" in item.data.preview ? (
+                  {console.log(l_item.preview)}
+                  {l_item.crosspost_parent_list.length &&
+                  "reddit_video_preview" in l_item.preview ? (
                     <>
                       <VideoCard
                         muted={!hasUserInteracted}
-                        url={item.data.preview.reddit_video_preview.hls_url}
-                        // url={item.data.preview.reddit_video_preview.hls_url}
-                        // fallback={item.data.media_embed.content}
-                        fallback={
-                          item.data.preview?.reddit_video_preview.hls_url
-                        }
+                        url={l_item.preview.reddit_video_preview.hls_url}
+                        // url={l_item.preview.reddit_video_preview.hls_url}
+                        // fallback={l_item.media_embed.content}
+                        fallback={l_item.preview?.reddit_video_preview.hls_url}
                       />
                     </>
                   ) : (
@@ -291,91 +301,90 @@ function Posts({ setParam }) {
                   )}
                   {/* <EmbedVideo
                     url={
-                      item.data.crosspost_parent_list.length
-                        ? item.data.crosspost_parent_list[0].media_embed.content
-                        : item.data.media_embed.content
+                      l_item.crosspost_parent_list.length
+                        ? l_item.crosspost_parent_list[0].media_embed.content
+                        : l_item.media_embed.content
                     }
-                    thumbnail={item.data.thumbnail}
+                    thumbnail={l_item.thumbnail}
                   /> */}
                 </Card>
-              ) : item.data.post_hint == "hosted:video" ||
-                item.data.is_video ? (
+              ) : l_item.post_hint == "hosted:video" || l_item.is_video ? (
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
                   <VideoCard
                     muted={!hasUserInteracted}
-                    url={item.data.media.reddit_video.dash_url.replaceAll(
+                    url={l_item.media.reddit_video.dash_url.replaceAll(
                       "&amp;",
                       "&"
                     )}
                   />
-                  {/* <ImageCard preview={item.data.url} /> */}
+                  {/* <ImageCard preview={l_item.url} /> */}
                 </Card>
-              ) : item.data.post_hint == "rich:video" ||
-                item.data.domain.includes("streamable.com") ? (
+              ) : l_item.post_hint == "rich:video" ||
+                l_item.domain.includes("streamable.com") ? (
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
                   <VideoCard
-                    url={item.data.url}
+                    url={l_item.url}
                     aspect={
-                      item.data.media_embed.width / item.data.media_embed.height
+                      l_item.media_embed.width / l_item.media_embed.height
                     }
                   />
-                  {/* <ImageCard preview={item.data.url} /> */}
+                  {/* <ImageCard preview={l_item.url} /> */}
                 </Card>
-              ) : item.data.is_gallery ? (
+              ) : l_item.is_gallery ? (
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
                   <GalleryCard
-                    items={item.data.gallery_data.items}
-                    data={item.data.media_metadata}
+                    items={l_item.gallery_data.items}
+                    data={l_item.media_metadata}
                   />
                 </Card>
-              ) : item.data.is_self ? (
+              ) : l_item.is_self ? (
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
                   <div
@@ -388,29 +397,29 @@ function Posts({ setParam }) {
                     }}
                     dangerouslySetInnerHTML={{
                       __html: decodeHtml(
-                        item.data.selftext_html
-                          ? item.data.selftext_html?.slice(0, 600) + "..."
+                        l_item.selftext_html
+                          ? l_item.selftext_html?.slice(0, 600) + "..."
                           : ""
                       ),
                     }}
                   ></div>
                 </Card>
-              ) : item.data.post_hint == "link" ? (
+              ) : l_item.post_hint == "link" ? (
                 <Card
-                  date={handleDate(item.data.created)}
+                  date={handleDate(l_item.created)}
                   key={index}
-                  fullname={item.data.author_fullname}
-                  title={item.data.title}
-                  user={item.data.author}
-                  thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                  comments={item.data.num_comments}
-                  ups={item.data.ups}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
                   downs={Math.round(
-                    item.data.ups / item.data.upvote_ratio - item.data.ups
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
                   <a
-                    href={item.data.url}
+                    href={l_item.url}
                     target="_blank"
                     style={{
                       position: "relative",
@@ -434,14 +443,13 @@ function Posts({ setParam }) {
                     <div>
                       <ImageCard
                         preview={
-                          item.data.preview.images[0].resolutions.length <= 4
-                            ? item.data.preview.images[0].source.url.replaceAll(
+                          l_item.preview.images[0].resolutions.length <= 4
+                            ? l_item.preview.images[0].source.url.replaceAll(
                                 "amp;",
                                 ""
                               )
-                            : item.data.preview.images[0].resolutions[
-                                item.data.preview.images[0].resolutions.length -
-                                  2
+                            : l_item.preview.images[0].resolutions[
+                                l_item.preview.images[0].resolutions.length - 2
                               ].url.replaceAll("amp;", "")
                         }
                       />
@@ -452,18 +460,18 @@ function Posts({ setParam }) {
                 // Cant Display
 
                 <>
-                  {HandleNot(item.data)}
+                  {HandleNot(l_item)}
                   <Card
-                    date={handleDate(item.data.created)}
+                    date={handleDate(l_item.created)}
                     key={index}
-                    fullname={item.data.author_fullname}
-                    title={item.data.title}
-                    user={item.data.author}
-                    thumbnail={item.data.thumbnail.replaceAll("amp;", "")}
-                    comments={item.data.num_comments}
-                    ups={item.data.ups}
+                    fullname={l_item.author_fullname}
+                    title={l_item.title}
+                    user={l_item.author}
+                    thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                    comments={l_item.num_comments}
+                    ups={l_item.ups}
                     downs={Math.round(
-                      item.data.ups / item.data.upvote_ratio - item.data.ups
+                      l_item.ups / l_item.upvote_ratio - l_item.ups
                     )}
                   >
                     <h3 style={{ color: "orange" }}>Cant Display Post</h3>
