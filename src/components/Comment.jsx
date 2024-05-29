@@ -1,8 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 
 function Comment({ data, className, color, first }) {
-  const Threadcolor = Math.random() * 360;
+  const Threadcolor = useRef(Math.random() * 360);
+  const [hide, SetHide] = useState(0);
+  const [loaded, SetLoaded] = useState(false);
+  const [childrenDisplay, SetChildrenDisplay] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      SetLoaded(true);
+      console.log("Loaded");
+    }, 1000);
+  }, []);
 
   function decodeHtml(l_html) {
     const txt = document.createElement("textarea");
@@ -37,20 +48,33 @@ function Comment({ data, className, color, first }) {
   return (
     <>
       <div
-        className={"comment-parent animate-load"}
+        className={`comment-parent ${!loaded ? "animate-load" : ""} ${
+          hide == 1 ? "collapse" : hide == 2 ? "collapse-reverse" : ""
+        }`}
         style={{
           background: `color-mix(in srgb, hsl(${
-            color || Threadcolor
+            color || Threadcolor.current
           }, 30%, 20%) 5%,var(--card-background))`,
           border: "1px solid #00000040",
+          borderBottom: "none",
+          borderRight: "none",
+          // maxHeight: hide && "35px",
           marginLeft: first && 0,
           borderRadius: first && "var(--card-border-radius)",
           boxShadow: !first && `#00000090 0 0px 6px`,
+          overflow: first && "hidden",
+          paddingBottom: data.replies
+            ? data.replies.data.children[0].kind == "more" && "10px"
+            : "10px",
+          paddingRight: first && "10px",
+          clipPath: "inset(-5px 0px 0px -5px)",
         }}
       >
         <div
           className={className}
-          style={{ background: `hsl(${color || Threadcolor}, 50%, 70%)` }}
+          style={{
+            background: `hsl(${color || Threadcolor.current}, 50%, 70%)`,
+          }}
         ></div>
         <div
           className="card-header-data"
@@ -73,12 +97,38 @@ function Comment({ data, className, color, first }) {
               ></i>
             )}
           </span>
-          <span style={{ opacity: "0.6" }}>• {handleDate(data.created)}</span>
+
+          <Link
+            onClick={() => {
+              SetHide((hide) => (hide == 1 ? 2 : 1));
+              if (hide == 1) {
+                SetChildrenDisplay(true);
+              } else {
+                setTimeout(() => {
+                  SetChildrenDisplay(false);
+                }, 200);
+              }
+            }}
+            className="label"
+            style={{
+              marginRight: "10px",
+            }}
+          >
+            <i className={hide ? "bx bxs-show" : "bx bxs-hide"}></i>
+          </Link>
+
+          <span style={{ opacity: "0.6", marginRight: "10px" }}>
+            • {handleDate(data.created)}
+          </span>
         </div>
         <div
-          style={{ fontSize: "clamp(16px, 3vw, 20px)" }}
+          style={{
+            fontSize: "clamp(16px, 3vw, 20px)",
+            display: childrenDisplay ? "block" : "none",
+          }}
           dangerouslySetInnerHTML={{ __html: decodeHtml(data.body_html) }}
         ></div>
+
         {data.replies
           ? data.replies.data.children.map((item, index) => {
               return (
@@ -87,7 +137,7 @@ function Comment({ data, className, color, first }) {
                     className="comment-thread"
                     key={item.data.id}
                     data={item.data}
-                    color={Threadcolor}
+                    color={Threadcolor.current}
                   />
                 )
               );

@@ -323,10 +323,41 @@ hr {
   margin: 10px;
   margin-right: 0;
   padding: 10px;
-  padding-right: 5px;
+  padding-right: 0;
+  /* max-height: 10000px; */
   background: var(--card-background);
   position: relative;
   overflow-wrap: break-word;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  /* transition: max-height 400ms; */
+}
+
+.collapse-reverse {
+  animation: comment-show 1s ease-in forwards;
+  /* max-height: 40px; */
+}
+.collapse {
+  animation: comment-collapse 200ms ease-out forwards;
+}
+
+@keyframes comment-collapse {
+  from {
+    max-height: 80svh;
+  }
+
+  to {
+    max-height: 35px;
+  }
+}
+@keyframes comment-show {
+  from {
+    max-height: 35px;
+  }
+
+  to {
+    max-height: 4000px;
+  }
 }
 
 .comment-parent img {
