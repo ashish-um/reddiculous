@@ -310,6 +310,7 @@ hr {
   width: 96%;
   margin: auto;
   max-width: var(--comments-max-width);
+  margin-bottom: 40px;
 }
 .comment-thread {
   height: 100%;

@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 // import "../App.css";
 import axios from "axios";
 import Card from "./Card";
@@ -10,16 +10,17 @@ import GalleryCard from "./GalleryCard";
 import { useParams } from "react-router-dom";
 // import { spinner } from "../../public/spinner2.gif";
 
-function Posts({ setParam, setCommentsData }) {
+function Posts({ setParam, setCommentsData, allData }) {
   const [data, setData] = useState([]);
   const [m_after, setAfter] = useState("");
   const [clicked, SetClicked] = useState(0);
   const [reqError, SetReqError] = useState("");
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const loading = useRef(false);
-  const { sub, id, post } = useParams();
+  const { sub, id, post, user } = useParams();
   const prevSub = useRef(sub);
   const URL = useRef(`https://old.reddit.com/r/${sub ? sub : "all"}.json`);
+  // URL.current = user && `https://old.reddit.com/u/${user}/submitted.json`;
   // var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
 
   useEffect(() => {
@@ -28,7 +29,12 @@ function Posts({ setParam, setCommentsData }) {
       setParam(sub ? `r/${sub}` : "r/all");
     }
     setData([]);
-    URL.current = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
+    if (sub) {
+      URL.current = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
+    }
+    if (user) {
+      URL.current = `https://old.reddit.com/user/${user}/submitted.json`;
+    }
     setAfter("");
     SetReqError("");
     if (sub != prevSub.current) {
@@ -62,10 +68,14 @@ function Posts({ setParam, setCommentsData }) {
         if (id && post) {
           // console.log("checking");
           // console.log(response.data);
+          window.removeEventListener("scroll", handleScroll);
           setData(response.data[0].data.children);
           setCommentsData(response.data[1].data.children);
         } else {
           // console.log(response.data.data.children);
+          if (!response.data.data.after) {
+            window.removeEventListener("scroll", handleScroll);
+          }
           setData((data) => [...data, ...response.data.data.children]);
           setAfter(response.data.data.after);
         }
@@ -80,7 +90,7 @@ function Posts({ setParam, setCommentsData }) {
   }, [clicked]);
   //   console.log(sub);
   // console.log(data.length);
-  console.log("clicked", clicked);
+
   function handleDate(l_date) {
     const m_date = new Date(l_date * 1000);
     const nowDate = new Date();
@@ -111,12 +121,13 @@ function Posts({ setParam, setCommentsData }) {
   }
 
   useEffect(() => {
-    if (!(post || id)) {
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
-    }
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
-  const handleScroll = () => {
+
+  const handleScroll = React.useCallback(() => {
     if (
       window.innerHeight + document.documentElement.scrollTop + 300 >=
       document.documentElement.scrollHeight
@@ -126,20 +137,23 @@ function Posts({ setParam, setCommentsData }) {
         SetClicked((clicked) => clicked + 1);
       }
     }
-  };
+  }, []);
 
   function HandleNot(shit) {
     console.log("Shit not supported", shit);
     return "";
   }
+
   return (
     <div className="container">
       {data.length ? (
         <>
           {data.map((item, index) => {
             let l_item = item.data;
+            let crosspost = false;
             if (item.data.crosspost_parent_list?.length) {
               l_item = item.data.crosspost_parent_list[0];
+              crosspost = true;
             }
 
             return l_item.author != "AutoModerator" ? (
@@ -151,8 +165,8 @@ function Posts({ setParam, setCommentsData }) {
               ) : ((l_item.is_reddit_media_domain && !l_item.is_video) ||
                   l_item.post_hint == "image") && // check if image
                 !l_item.url.endsWith(".gif") ? ( // check if not gif
-                // check if not crosspost
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -186,6 +200,7 @@ function Posts({ setParam, setCommentsData }) {
                 </Card>
               ) : l_item.domain.includes("imgur.com") ? ( // If Imgur
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -217,6 +232,7 @@ function Posts({ setParam, setCommentsData }) {
                 </Card>
               ) : l_item.url.endsWith(".gif") ? ( // If Gif
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -238,6 +254,7 @@ function Posts({ setParam, setCommentsData }) {
               ) : l_item.post_hint == "rich:video" &&
                 l_item.domain.includes("redgifs.com") ? (
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -283,6 +300,7 @@ function Posts({ setParam, setCommentsData }) {
                 </Card>
               ) : l_item.domain.includes("redgifs.com") ? (
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -324,6 +342,7 @@ function Posts({ setParam, setCommentsData }) {
                 </Card>
               ) : l_item.post_hint == "hosted:video" || l_item.is_video ? (
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -352,6 +371,7 @@ function Posts({ setParam, setCommentsData }) {
               ) : l_item.post_hint == "rich:video" ||
                 l_item.domain.includes("streamable.com") ? (
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -378,6 +398,7 @@ function Posts({ setParam, setCommentsData }) {
                 </Card>
               ) : l_item.is_gallery ? (
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -401,6 +422,7 @@ function Posts({ setParam, setCommentsData }) {
                 </Card>
               ) : l_item.is_self ? (
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -438,6 +460,7 @@ function Posts({ setParam, setCommentsData }) {
                 </Card>
               ) : l_item.post_hint == "link" ? (
                 <Card
+                  crosspost={crosspost}
                   permalink={l_item.permalink}
                   spoiler={l_item.spoiler}
                   over_18={l_item.over_18}
@@ -494,10 +517,10 @@ function Posts({ setParam, setCommentsData }) {
                 </Card>
               ) : (
                 // Cant Display
-
                 <>
                   {HandleNot(l_item)}
                   <Card
+                    crosspost={crosspost}
                     permalink={l_item.permalink}
                     spoiler={l_item.spoiler}
                     over_18={l_item.over_18}
@@ -514,7 +537,15 @@ function Posts({ setParam, setCommentsData }) {
                       l_item.ups / l_item.upvote_ratio - l_item.ups
                     )}
                   >
-                    <h3 style={{ color: "orange" }}>Cant Display Post</h3>
+                    <a
+                      href={l_item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "cornflowerblue" }}
+                    >
+                      {l_item.url}
+                    </a>
+                    <h3 style={{ color: "orange" }}>Nothing to show</h3>
                   </Card>
                 </>
               )
@@ -522,7 +553,7 @@ function Posts({ setParam, setCommentsData }) {
               "" // if auto mod: null
             );
           })}
-          {!(post && id) && (
+          {!(post && id) && m_after && (
             <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
           )}
         </>

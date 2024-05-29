@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Posts from "./components/Posts";
 import Nav from "./components/Nav";
 import Comments from "./components/Comments";
+import User from "./components/User";
 import { useState } from "react";
 
 function App() {
@@ -15,14 +16,7 @@ function App() {
           <Route path="/" element={<Posts setParam={SetParams} />} />
           <Route path="/r/:sub" element={<Posts setParam={SetParams} />} />
           <Route path="/r/:sub/comments/:id/:post/" element={<Comments />} />
-          <Route
-            path="/u/:user"
-            element={
-              <h1 style={{ textAlign: "center", marginBlock: "20px" }}>
-                Page Under Construction 🛠️
-              </h1>
-            }
-          />
+          <Route path="/u/:user" element={<User />} />
           <Route
             path="*"
             element={

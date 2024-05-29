@@ -21,19 +21,20 @@ function Card(props) {
           <Link className="label" to={"/u/" + props.user}>
             u/{props.user}
           </Link>
-          {props.over_18 ? (
+          {props.over_18 && (
             <span className="label" style={{ background: "darkred" }}>
               NSFW
             </span>
-          ) : (
-            ""
           )}
-          {props.spoiler ? (
+          {props.spoiler && (
             <span className="label" style={{ background: "darkcyan" }}>
               spoiler
             </span>
-          ) : (
-            ""
+          )}
+          {props.crosspost && (
+            <span className="label" style={{ background: "darkgreen" }}>
+              crosspost
+            </span>
           )}
           <span style={{ opacity: ".6" }}>• {props.date}</span>
         </div>
