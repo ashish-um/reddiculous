@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect, useRef, useCallback } from "react";
-// import "../App.css";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import Card from "./Card";
 import ImageCard from "./ImageCard";
@@ -8,6 +8,7 @@ import VideoCard from "./VideoCard";
 import EmbedVideo from "./EmbedVideo";
 import GalleryCard from "./GalleryCard";
 import { useParams } from "react-router-dom";
+
 // import { spinner } from "../../public/spinner2.gif";
 
 function Posts({ setParam, setCommentsData, allData }) {
@@ -20,6 +21,9 @@ function Posts({ setParam, setCommentsData, allData }) {
   const { sub, id, post, user } = useParams();
   const prevSub = useRef(sub);
   const URL = useRef(`https://old.reddit.com/r/${sub ? sub : "all"}.json`);
+  const [searchParam, SetSearchParams] = useSearchParams({ q: "" });
+  const prevSearchQuery = useRef(searchParam.get("q"));
+  console.log("Search:", searchParam.get("q"));
   // URL.current = user && `https://old.reddit.com/u/${user}/submitted.json`;
   // var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
 
@@ -35,9 +39,15 @@ function Posts({ setParam, setCommentsData, allData }) {
     if (user) {
       URL.current = `https://old.reddit.com/user/${user}/submitted.json`;
     }
+    if (searchParam.get("q")) {
+      URL.current = `https://old.reddit.com/search.json`;
+    }
     setAfter("");
     SetReqError("");
-    if (sub != prevSub.current) {
+    if (
+      sub != prevSub.current ||
+      prevSearchQuery.current != searchParam.get("q")
+    ) {
       SetClicked(clicked == 0 ? 1 : 0);
       window.scrollTo(0, 0);
     }
@@ -49,21 +59,19 @@ function Posts({ setParam, setCommentsData, allData }) {
     const handleInteraction = () => setHasUserInteracted(true);
     window.addEventListener("click", handleInteraction);
     return () => window.removeEventListener("click", handleInteraction);
-  }, [sub, post]);
+  }, [sub, post, searchParam.get("q")]);
 
   useEffect(() => {
     var options = {
       method: "GET",
       url: URL.current,
-      params: { after: m_after },
+      params: { after: m_after, q: searchParam.get("q") },
     };
     axios
       .request(options)
       .then((response) => {
         // console.log(
-        //   response.data.data.children.filter(
-        //     (item) => item.data.crosspost_parent_list?.length > 0
-        //   )
+        //   response.data.data.children.filter((item) => item.data.is_gallery)
         // );
         if (id && post) {
           // console.log("checking");
@@ -369,6 +377,7 @@ function Posts({ setParam, setCommentsData, allData }) {
                   {/* <ImageCard preview={l_item.url} /> */}
                 </Card>
               ) : l_item.post_hint == "rich:video" ||
+                l_item.domain.includes("youtube.com") ||
                 l_item.domain.includes("streamable.com") ? (
                 <Card
                   crosspost={crosspost}
@@ -559,8 +568,10 @@ function Posts({ setParam, setCommentsData, allData }) {
         </>
       ) : reqError ? (
         <h1>Error: {reqError}</h1>
-      ) : (
+      ) : !(m_after == null) ? (
         <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
+      ) : (
+        "nothing to show"
       )}
     </div>
   );

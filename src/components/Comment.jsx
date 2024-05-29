@@ -110,21 +110,16 @@ function Comment({ data, className, color, first }) {
               }
             }}
             className="label"
-            style={{
-              marginRight: "10px",
-            }}
           >
-            <i className={hide ? "bx bxs-show" : "bx bxs-hide"}></i>
+            <i className={!childrenDisplay ? "bx bxs-show" : "bx bxs-hide"}></i>
           </Link>
 
-          <span style={{ opacity: "0.6", marginRight: "10px" }}>
-            • {handleDate(data.created)}
-          </span>
+          <span style={{ opacity: "0.6" }}>• {handleDate(data.created)}</span>
         </div>
         <div
           style={{
             fontSize: "clamp(16px, 3vw, 20px)",
-            display: childrenDisplay ? "block" : "none",
+            opacity: childrenDisplay ? "1" : "0",
           }}
           dangerouslySetInnerHTML={{ __html: decodeHtml(data.body_html) }}
         ></div>

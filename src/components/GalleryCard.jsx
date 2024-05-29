@@ -54,7 +54,11 @@ function GalleryCard(props) {
               <ImageCard
                 preview={
                   props.data[item.media_id].status == "valid"
-                    ? props.data[item.media_id].p[1].u.replaceAll("amp;", "")
+                    ? props.data[item.media_id].p[
+                        props.data[item.media_id].p.length > 3
+                          ? 3
+                          : props.data[item.media_id].p.length - 1
+                      ].u.replaceAll("amp;", "")
                     : "https://hips.hearstapps.com/hmg-prod/images/legacy-fre-image-placeholder-1645192956.png?crop=1.00xw:1.00xh;0,0&resize=640:*"
                 }
               />

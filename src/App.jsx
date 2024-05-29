@@ -4,6 +4,7 @@ import Posts from "./components/Posts";
 import Nav from "./components/Nav";
 import Comments from "./components/Comments";
 import User from "./components/User";
+import Search from "./components/Search";
 import { useState } from "react";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/r/:sub" element={<Posts setParam={SetParams} />} />
           <Route path="/r/:sub/comments/:id/:post/" element={<Comments />} />
           <Route path="/u/:user" element={<User />} />
+          <Route path="/search" element={<Search />} />
           <Route
             path="*"
             element={

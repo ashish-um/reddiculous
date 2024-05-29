@@ -1,15 +1,21 @@
 import React from "react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 function Nav({ param }) {
+  const [searchParam, SetSearchParams] = useSearchParams({ search: "" });
+
   const navigate = useNavigate();
   const [searchValue, SetSearchValue] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
-    navigate(`/r/${searchValue}`);
+    // SetSearchParams({ search: searchValue });
+    navigate({
+      pathname: `/search`,
+      search: createSearchParams({ q: searchValue }).toString(),
+    });
   }
 
   return (
@@ -36,7 +42,7 @@ function Nav({ param }) {
         <div className="sub-input">
           <input
             type="search"
-            name=""
+            name="search"
             value={searchValue}
             onChange={(e) => SetSearchValue(e.target.value)}
           />
