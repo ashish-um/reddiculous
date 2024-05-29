@@ -19,33 +19,36 @@ function Posts({ setParam, setCommentsData }) {
   const loading = useRef(false);
   const { sub, id, post } = useParams();
   const prevSub = useRef(sub);
-  var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
+  const URL = useRef(`https://old.reddit.com/r/${sub ? sub : "all"}.json`);
+  // var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
+
   useEffect(() => {
     // set State Default
     if (setParam) {
       setParam(sub ? `r/${sub}` : "r/all");
     }
-    if (post && id) {
-      console.log("Entered Post", post);
-      URL = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json`;
-    }
     setData([]);
+    URL.current = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
     setAfter("");
     SetReqError("");
     if (sub != prevSub.current) {
       SetClicked(clicked == 0 ? 1 : 0);
       window.scrollTo(0, 0);
     }
+    if (post && id) {
+      console.log("Entered Post", post);
+      URL.current = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json?limit=100`;
+    }
     // console.log(true);
     const handleInteraction = () => setHasUserInteracted(true);
     window.addEventListener("click", handleInteraction);
     return () => window.removeEventListener("click", handleInteraction);
-  }, [sub]);
+  }, [sub, post]);
 
   useEffect(() => {
     var options = {
       method: "GET",
-      url: URL,
+      url: URL.current,
       params: { after: m_after },
     };
     axios
@@ -76,8 +79,8 @@ function Posts({ setParam, setCommentsData }) {
       });
   }, [clicked]);
   //   console.log(sub);
-  console.log(data.length);
-
+  // console.log(data.length);
+  console.log("clicked", clicked);
   function handleDate(l_date) {
     const m_date = new Date(l_date * 1000);
     const nowDate = new Date();
@@ -103,17 +106,15 @@ function Posts({ setParam, setCommentsData }) {
   }
   function decodeHtml(l_html) {
     const txt = document.createElement("textarea");
-    // l_html = l_html.replace(" ", " sandbox ");
     txt.innerHTML = l_html;
-    // txt.innerHTML = html.replace(`style="position:absolute;"`, "");
-    // txt.setAttribute("style", "opacity:0.4");
     return txt.value;
   }
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
+    if (!(post || id)) {
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, []);
   const handleScroll = () => {
     if (
@@ -299,8 +300,7 @@ function Posts({ setParam, setCommentsData }) {
                   )}
                 >
                   {console.log(l_item.preview)}
-                  {l_item.crosspost_parent_list.length &&
-                  "reddit_video_preview" in l_item.preview ? (
+                  {"reddit_video_preview" in l_item.preview ? (
                     <>
                       <VideoCard
                         muted={!hasUserInteracted}
@@ -428,7 +428,9 @@ function Posts({ setParam, setCommentsData }) {
                     dangerouslySetInnerHTML={{
                       __html: decodeHtml(
                         l_item.selftext_html
-                          ? l_item.selftext_html?.slice(0, 600) + "..."
+                          ? !(post && id)
+                            ? l_item.selftext_html?.slice(0, 600) + "..."
+                            : l_item.selftext_html
                           : ""
                       ),
                     }}

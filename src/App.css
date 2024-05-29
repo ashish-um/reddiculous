@@ -9,6 +9,8 @@
   --primary-color: #a688fa;
   --secondary-color: #25193b;
   --success-color: green;
+  --comments-max-width: 850px;
+  --card-border-radius: 17px;
 }
 
 a {
@@ -131,6 +133,7 @@ hr {
   border-radius: 100vw;
   background: var(--card-element);
   display: flex;
+  width: max-content;
   /* flex-direction: column; */
   align-items: center;
 }
@@ -156,7 +159,7 @@ hr {
   /* max-width: 800px; */
   width: 100%;
   /* min-width: 200px; */
-  border-radius: 17px;
+  border-radius: var(--card-border-radius);
   font-size: large;
   background: var(--card-background);
 }
@@ -302,7 +305,37 @@ hr {
   color: white;
   padding: 10px;
 }
+.comments {
+  /* margin-inline: 10px; */
+  width: 96%;
+  margin: auto;
+  max-width: var(--comments-max-width);
+}
+.comment-thread {
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  /* background: hsl(100, 30%, 40%); */
+}
+.comment-parent {
+  margin: 10px;
+  margin-right: 0;
+  padding: 10px;
+  padding-right: 5px;
+  background: var(--card-background);
+  position: relative;
+  overflow-wrap: break-word;
+}
 
+.comment-parent img {
+  max-width: clamp(200px, 40vw, 400px);
+  /* max-width: 200px; */
+  height: auto;
+  /* display: flex; */
+  /* flex-wrap: wrap; */
+}
 .animate-load {
   animation: fader 800ms;
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function Nav({ param }) {
   const navigate = useNavigate();
@@ -14,8 +15,17 @@ function Nav({ param }) {
   return (
     <div className="header">
       <div style={{ display: "flex", alignItems: "center" }}>
-        <img src="/reddiculous/icon_small.png" width={30} height={30} alt="" />
-        <h1 style={{ padding: "10px", fontSize: "25px" }}>{param}</h1>
+        <Link to="/">
+          <img
+            src="/reddiculous/icon_small.png"
+            width={30}
+            height={30}
+            alt=""
+          />
+        </Link>
+        <Link to={"/" + param}>
+          <h1 style={{ padding: "10px", fontSize: "25px" }}>{param}</h1>
+        </Link>
       </div>
       <form
         style={{ display: "flex" }}

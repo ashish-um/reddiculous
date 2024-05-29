@@ -9,7 +9,24 @@ function Comments() {
   return (
     <>
       <Posts setCommentsData={SetData} />
-      <Comment />
+      <div className="comments">
+        {data.length
+          ? data.map((item, index) => {
+              return (
+                <>
+                  {item.data.body && (
+                    <Comment
+                      // className="comment-parent"
+                      first={true}
+                      key={item.data.id}
+                      data={item.data}
+                    />
+                  )}
+                </>
+              );
+            })
+          : ""}
+      </div>
     </>
   );
 }
