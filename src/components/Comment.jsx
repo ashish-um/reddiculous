@@ -15,9 +15,22 @@ function Comment({ data, className, color, first }) {
     }, 1000);
   }, []);
 
-  function decodeHtml(l_html) {
+  function decodeHtml(l_html, l_body) {
     const txt = document.createElement("textarea");
-    txt.innerHTML = l_html;
+    if (l_html.includes("preview.redd.it")) {
+      console.log("includes");
+      txt.innerHTML =
+        l_html
+          .replaceAll("&lt;a", "<img")
+          .replaceAll("href=", "src=")
+          .split("&gt;https")[0] +
+        "/>" +
+        l_html.split("&lt;/a&gt;")[1];
+    } else {
+      txt.innerHTML = l_html
+        .replaceAll('href="/r/', 'href="/reddiculous/#/r/')
+        .replaceAll("href=", " target='_blank' href=");
+    }
     return txt.value;
   }
 
@@ -111,7 +124,13 @@ function Comment({ data, className, color, first }) {
             }}
             className="label"
           >
-            <i className={!childrenDisplay ? "bx bxs-show" : "bx bxs-hide"}></i>
+            {/* <i class="bx bx-plus-circle"></i>
+            <i class="bx bxs-plus-square"></i> */}
+            <i
+              className={
+                !childrenDisplay ? "bx bxs-plus-circle" : "bx bxs-minus-circle"
+              }
+            ></i>
           </Link>
 
           <span style={{ opacity: "0.6" }}>• {handleDate(data.created)}</span>

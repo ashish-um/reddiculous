@@ -12,13 +12,13 @@ function Card(props) {
       <div className="card-header">
         <div className="card-header-data">
           <Link
-            className="label"
+            className="label clickable"
             style={{ background: "var(--secondary-color)" }}
             to={"/" + props.subreddit}
           >
             {props.subreddit}
           </Link>
-          <Link className="label" to={"/u/" + props.user}>
+          <Link className="label clickable" to={"/u/" + props.user}>
             u/{props.user}
           </Link>
           {props.over_18 && (
@@ -52,7 +52,7 @@ function Card(props) {
         {/* <span>Created: {handleDate(item.data.created)} hrs ago</span> */}
         {/* <span style={{ color: "red" }}>{props.fullname}</span> */}
 
-        <Link to={props.permalink} className="label">
+        <Link to={props.permalink} className="label clickable">
           <i className="bx bxs-comment-detail"></i> {props.comments}
         </Link>
 
@@ -76,7 +76,7 @@ function Card(props) {
             position: "relative",
           }}
         >
-          <Link
+          <div
             onClick={() => {
               navigator.clipboard.writeText(
                 window.location.origin +
@@ -90,11 +90,11 @@ function Card(props) {
                 SetShared(false);
               }, 1000);
             }}
-            className="label"
+            className="label clickable"
           >
             <i className="bx bxs-share" style={{ transform: "scaleX(-1)" }}></i>
             Share
-          </Link>
+          </div>
           {shared ? (
             <span
               style={{

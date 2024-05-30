@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ReactPlayer from "react-player";
+import ReactPlayer from "react-player/lazy";
 function VideoCard(props) {
   // console.log(props.img);
 
@@ -13,6 +13,7 @@ function VideoCard(props) {
     // txt.innerHTML = html.replace(`style="position:absolute;"`, "");
     return txt.value;
   }
+  // console.log("Image", props.img);
   // console.log(props.aspect);
   return (
     <div onCompositionStart={(r) => console.log(r)} className="video-holder">
@@ -24,7 +25,7 @@ function VideoCard(props) {
         style={{ aspectRatio: props?.aspect }}
       >
         <ReactPlayer
-          // light={<img src={props.img} height="100%" alt="Thumbnail" />}
+          light={props.img ? <img src={props.img} /> : false}
           muted={props.muted}
           playing={play}
           playsinline={true}

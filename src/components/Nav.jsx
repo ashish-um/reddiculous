@@ -1,11 +1,10 @@
 import React from "react";
 import { useState } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { BrowserView } from "react-device-detect";
 
-function Nav({ param }) {
-  const [searchParam, SetSearchParams] = useSearchParams({ search: "" });
-
+function Nav() {
   const navigate = useNavigate();
   const [searchValue, SetSearchValue] = useState("");
 
@@ -21,7 +20,7 @@ function Nav({ param }) {
   return (
     <div className="header">
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Link to="/">
+        <Link style={{ height: "30px" }} to="/r/all">
           <img
             src="/reddiculous/icon_small.png"
             width={30}
@@ -29,9 +28,11 @@ function Nav({ param }) {
             alt=""
           />
         </Link>
-        <Link to={"/" + param}>
-          <h1 style={{ padding: "10px", fontSize: "25px" }}>{param}</h1>
-        </Link>
+        <BrowserView>
+          <Link to="/">
+            <h1 style={{ padding: "10px", fontSize: "25px" }}>Reddiculous</h1>
+          </Link>
+        </BrowserView>
       </div>
       <form
         style={{ display: "flex" }}

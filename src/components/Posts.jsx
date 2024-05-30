@@ -11,7 +11,7 @@ import { useParams } from "react-router-dom";
 
 // import { spinner } from "../../public/spinner2.gif";
 
-function Posts({ setParam, setCommentsData, allData }) {
+function Posts({ setParam, setCommentsData, setPostLoad }) {
   const [data, setData] = useState([]);
   const [m_after, setAfter] = useState("");
   const [clicked, SetClicked] = useState(0);
@@ -23,7 +23,7 @@ function Posts({ setParam, setCommentsData, allData }) {
   const URL = useRef(`https://old.reddit.com/r/${sub ? sub : "all"}.json`);
   const [searchParam, SetSearchParams] = useSearchParams({ q: "" });
   const prevSearchQuery = useRef(searchParam.get("q"));
-  console.log("Search:", searchParam.get("q"));
+  // console.log("Search:", searchParam.get("q"));
   // URL.current = user && `https://old.reddit.com/u/${user}/submitted.json`;
   // var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
 
@@ -42,6 +42,7 @@ function Posts({ setParam, setCommentsData, allData }) {
     if (searchParam.get("q")) {
       URL.current = `https://old.reddit.com/search.json`;
     }
+
     setAfter("");
     SetReqError("");
     if (
@@ -52,7 +53,7 @@ function Posts({ setParam, setCommentsData, allData }) {
       window.scrollTo(0, 0);
     }
     if (post && id) {
-      console.log("Entered Post", post);
+      // console.log("Entered Post", post);
       URL.current = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json?limit=100`;
     }
     // console.log(true);
@@ -65,7 +66,13 @@ function Posts({ setParam, setCommentsData, allData }) {
     var options = {
       method: "GET",
       url: URL.current,
-      params: { after: m_after, q: searchParam.get("q") },
+      params: {
+        after: m_after,
+        q: searchParam.get("q"),
+        // include_over_18: "on",
+        // sort: "top",
+        // t: "all",
+      },
     };
     axios
       .request(options)
@@ -76,16 +83,19 @@ function Posts({ setParam, setCommentsData, allData }) {
         if (id && post) {
           // console.log("checking");
           // console.log(response.data);
-          window.removeEventListener("scroll", handleScroll);
+          // window.removeEventListener("scroll", handleScroll);
           setData(response.data[0].data.children);
           setCommentsData(response.data[1].data.children);
         } else {
-          // console.log(response.data.data.children);
+          console.log(response.data.data.children);
           if (!response.data.data.after) {
             window.removeEventListener("scroll", handleScroll);
           }
           setData((data) => [...data, ...response.data.data.children]);
           setAfter(response.data.data.after);
+        }
+        if (setPostLoad) {
+          setPostLoad(true);
         }
       })
       .catch((reject) => {
@@ -154,6 +164,7 @@ function Posts({ setParam, setCommentsData, allData }) {
 
   return (
     <div className="container">
+      {sub ? <h2 className="post-title">r/{sub}</h2> : ""}
       {data.length ? (
         <>
           {data.map((item, index) => {
@@ -238,6 +249,63 @@ function Posts({ setParam, setCommentsData, allData }) {
                     }
                   />
                 </Card>
+              ) : l_item.post_hint == "link" ? (
+                <Card
+                  crosspost={crosspost}
+                  permalink={l_item.permalink}
+                  spoiler={l_item.spoiler}
+                  over_18={l_item.over_18}
+                  subreddit={l_item.subreddit_name_prefixed}
+                  date={handleDate(l_item.created)}
+                  key={index}
+                  fullname={l_item.author_fullname}
+                  title={l_item.title}
+                  user={l_item.author}
+                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
+                  comments={l_item.num_comments}
+                  ups={l_item.ups}
+                  downs={Math.round(
+                    l_item.ups / l_item.upvote_ratio - l_item.ups
+                  )}
+                >
+                  <a
+                    href={l_item.url}
+                    target="_blank"
+                    style={{
+                      position: "relative",
+                    }}
+                  >
+                    <i className="bx bx-link-external redirect-link"></i>
+                    {/* <span
+                          style={{
+                            position: "absolute",
+                            zIndex: "3",
+                            fontSize: "40px",
+                            fontWeight: "bolder",
+                            transform: "rotate(180deg) translate(-50%, -50%)",
+                            top: "50%",
+                            left: "50%",
+                            textDecoration: "none",
+                          }}
+                        >
+                          &#10550;
+                        </span> */}
+                    <div>
+                      <ImageCard
+                        preview={
+                          l_item.preview.images[0].resolutions.length <= 4
+                            ? l_item.preview.images[0].source.url.replaceAll(
+                                "amp;",
+                                ""
+                              )
+                            : l_item.preview.images[0].resolutions[
+                                l_item.preview.images[0].resolutions.length - 2
+                              ].url.replaceAll("amp;", "")
+                        }
+                      />
+                    </div>
+                  </a>
+                </Card>
               ) : l_item.url.endsWith(".gif") ? ( // If Gif
                 <Card
                   crosspost={crosspost}
@@ -285,9 +353,21 @@ function Posts({ setParam, setCommentsData, allData }) {
                       l_item.media.oembed.thumbnail_url.split("files/")[0] +
                       "sd.m3u8"
                     }
+                    img={
+                      l_item.preview.images[0].resolutions.filter(
+                        (item) => item.height > 300
+                      ).length > 0
+                        ? l_item.preview.images[0].resolutions
+                            .filter((item) => item.height > 300)[0]
+                            .url.replaceAll("amp;", "")
+                        : l_item.preview.images[0].source.url.replaceAll(
+                            "amp;",
+                            ""
+                          )
+                    }
                     // url={l_item.preview.reddit_video_preview.hls_url}
                     // fallback={l_item.media_embed.content}
-                    fallback={l_item.preview?.reddit_video_preview.hls_url}
+                    fallback={l_item.preview?.reddit_video_preview?.hls_url}
                     fallbackEmbed={l_item.media_embed.content}
                   />
 
@@ -325,8 +405,8 @@ function Posts({ setParam, setCommentsData, allData }) {
                     l_item.ups / l_item.upvote_ratio - l_item.ups
                   )}
                 >
-                  {console.log(l_item.preview)}
-                  {"reddit_video_preview" in l_item.preview ? (
+                  {l_item.preview &&
+                  "reddit_video_preview" in l_item.preview ? (
                     <>
                       <VideoCard
                         muted={!hasUserInteracted}
@@ -337,16 +417,24 @@ function Posts({ setParam, setCommentsData, allData }) {
                       />
                     </>
                   ) : (
-                    console.log("Sorry Not Found Previews")
+                    // console.log("Sorry Not Found Previews")
+                    <>
+                      {/* {console.log(l_item)} */}
+                      <EmbedVideo
+                        url={
+                          l_item.crosspost_parent_list.length
+                            ? l_item.crosspost_parent_list[0].media_embed
+                                .content
+                            : l_item.media_embed.content
+                        }
+                        thumbnail={
+                          l_item.thumbnail?.includes("https")
+                            ? l_item.thumbnail
+                            : "https://external-preview.redd.it/GvDG58LivFnlxOq8XETKwi__STfuh3cKuy7C2ah2uDw.jpg?width=640&crop=smart&blur=40&format=pjpg&auto=webp&s=8acc582cbc8e2228edcb7d0412091ba1552879b5"
+                        }
+                      />
+                    </>
                   )}
-                  {/* <EmbedVideo
-                    url={
-                      l_item.crosspost_parent_list.length
-                        ? l_item.crosspost_parent_list[0].media_embed.content
-                        : l_item.media_embed.content
-                    }
-                    thumbnail={l_item.thumbnail}
-                  /> */}
                 </Card>
               ) : l_item.post_hint == "hosted:video" || l_item.is_video ? (
                 <Card
@@ -466,63 +554,6 @@ function Posts({ setParam, setCommentsData, allData }) {
                       ),
                     }}
                   ></div>
-                </Card>
-              ) : l_item.post_hint == "link" ? (
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
-                  <a
-                    href={l_item.url}
-                    target="_blank"
-                    style={{
-                      position: "relative",
-                    }}
-                  >
-                    <i className="bx bx-link-external redirect-link"></i>
-                    {/* <span
-                      style={{
-                        position: "absolute",
-                        zIndex: "3",
-                        fontSize: "40px",
-                        fontWeight: "bolder",
-                        transform: "rotate(180deg) translate(-50%, -50%)",
-                        top: "50%",
-                        left: "50%",
-                        textDecoration: "none",
-                      }}
-                    >
-                      &#10550;
-                    </span> */}
-                    <div>
-                      <ImageCard
-                        preview={
-                          l_item.preview.images[0].resolutions.length <= 4
-                            ? l_item.preview.images[0].source.url.replaceAll(
-                                "amp;",
-                                ""
-                              )
-                            : l_item.preview.images[0].resolutions[
-                                l_item.preview.images[0].resolutions.length - 2
-                              ].url.replaceAll("amp;", "")
-                        }
-                      />
-                    </div>
-                  </a>
                 </Card>
               ) : (
                 // Cant Display

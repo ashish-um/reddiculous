@@ -11,6 +11,7 @@
   --success-color: green;
   --comments-max-width: 850px;
   --card-border-radius: 17px;
+  --max-card-width: 800px;
 }
 
 a {
@@ -38,7 +39,7 @@ body {
   top: 0;
   z-index: 100;
   /* background: var(--body-background) 25%; */
-  padding: 0 20px;
+  padding: 6px 20px;
   width: -webkit-fill-available;
   display: flex;
   align-items: center;
@@ -91,11 +92,13 @@ form input:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: auto;
+  /* position: relative; */
+  /* margin: auto; */
+  /* justify-content: center; */
   /* padding: 0 10%; */
-  width: 82%;
+  /* width: 100%; */
   /* min-width: 200px; */
-  max-width: 800px;
+  /* max-width: 800px; */
   /* padding: 0px 40px; */
 }
 
@@ -127,24 +130,52 @@ hr {
   gap: 10px;
   align-items: center;
 }
+
+.active {
+  background: var(--success-color) !important;
+}
+
 .label {
   gap: 5px;
-  padding: clamp(2px, 0.4vw, 5px) clamp(6px, 1vw, 12px);
+  padding: clamp(4px, 0.4vw, 5px) clamp(8px, 1vw, 12px);
   border-radius: 100vw;
   background: var(--card-element);
   display: flex;
   width: max-content;
   /* flex-direction: column; */
   align-items: center;
+  /* box-sizing: border-box; */
+}
+.clickable:hover {
+  cursor: pointer;
+  /* background: ; */
+  border: 1px solid;
+  /* transform: scale(1.01); */
+}
+
+.clickable {
+  box-sizing: border-box;
+  transition: 100ms;
+
+  border: 1px solid transparent;
 }
 
 .separator {
   width: 1px;
-  margin-inline: 10px;
+  margin-inline: 5px;
   height: 18px;
   /* height: 100%; */
 
   background: grey;
+}
+
+.post-title {
+  max-width: var(--max-card-width);
+  width: -webkit-fill-available;
+  padding: 6px 25px;
+  background-color: var(--card-element);
+  border-radius: var(--card-border-radius);
+  margin: 10px;
 }
 
 .card {
@@ -157,7 +188,9 @@ hr {
   padding: 25px;
   gap: 10px;
   /* max-width: 800px; */
-  width: 100%;
+  /* width: 100%; */
+  width: -webkit-fill-available;
+  max-width: var(--max-card-width);
   /* min-width: 200px; */
   border-radius: var(--card-border-radius);
   font-size: large;
@@ -380,6 +413,30 @@ hr {
   opacity: 0;
   animation: left-right 1s;
 }
+.search-sub {
+  margin-top: 6px;
+  margin-inline: 12px;
+}
+.subcard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* width: fit-content; */
+  padding: 10px;
+  margin-block: 5px;
+  border-radius: 12px;
+  /* justify-content: flex-start; */
+  gap: 10px;
+}
+.subcard img {
+  border-radius: 100vw;
+}
+
+/* .search-sub {
+  position: absolute;
+  top: 50px;
+  right: 0;
+} */
 
 @keyframes fader {
   from {
