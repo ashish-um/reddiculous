@@ -18,11 +18,18 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
   const [reqError, SetReqError] = useState("");
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const loading = useRef(false);
-  const { sub, id, post, user } = useParams();
-  const prevSub = useRef(sub);
+  const { sub, id, post, user, sort } = useParams();
   const URL = useRef(`https://old.reddit.com/r/${sub ? sub : "all"}.json`);
-  const [searchParam, SetSearchParams] = useSearchParams({ q: "" });
+  const [searchParam, SetSearchParams] = useSearchParams({
+    q: "",
+    sort: "",
+    t: "",
+  });
+  const prevSub = useRef(sub);
   const prevSearchQuery = useRef(searchParam.get("q"));
+  const prevSort = useRef(sort);
+  const [firstLoad, SetFirstLoad] = useState(false);
+
   // console.log("Search:", searchParam.get("q"));
   // URL.current = user && `https://old.reddit.com/u/${user}/submitted.json`;
   // var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
@@ -42,18 +49,28 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
     if (searchParam.get("q")) {
       URL.current = `https://old.reddit.com/search.json`;
     }
+    if (sort) {
+      URL.current = `https://old.reddit.com/r/${sub}/${sort}.json`;
+    }
 
     setAfter("");
     SetReqError("");
-    if (
-      sub != prevSub.current ||
-      (prevSearchQuery &&
-        prevSearchQuery.current != searchParam.get("q") &&
-        !(id && post))
-    ) {
+    // if (
+    //   sub != prevSub.current ||
+    //   (prevSearchQuery &&
+    //     prevSearchQuery.current != searchParam.get("q") &&
+    //     !(id && post)) ||
+    //   (sort && sort != prevSort.current)
+    // ) {
+    //   SetClicked(clicked == 0 ? 1 : 0);
+    //   window.scrollTo(0, 0);
+    // }
+
+    if (firstLoad) {
       SetClicked(clicked == 0 ? 1 : 0);
       window.scrollTo(0, 0);
     }
+
     if (post && id) {
       // console.log("Entered Post", post);
       URL.current = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json?limit=100`;
@@ -62,9 +79,19 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
     const handleInteraction = () => setHasUserInteracted(true);
     window.addEventListener("click", handleInteraction);
     return () => window.removeEventListener("click", handleInteraction);
-  }, [sub, post, searchParam.get("q")]);
+  }, [sub, post, searchParam.get("q"), sort, searchParam.get("t")]);
+
+  // ***********************************************************************************************************
+  // ***********************************************************************************************************
+  // ***********************************************************************************************************
+  // ***********************************************************************************************************
+  // ***********************************************************************************************************
+  // ***********************************************************************************************************
+  // ***********************************************************************************************************
+  // ***********************************************************************************************************
 
   useEffect(() => {
+    SetFirstLoad(true);
     var options = {
       method: "GET",
       url: URL.current,
@@ -72,8 +99,8 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
         after: m_after,
         q: searchParam.get("q"),
         // include_over_18: "on",
-        // sort: "top",
-        // t: "all",
+        sort: searchParam.get("sort"),
+        t: searchParam.get("t"),
       },
     };
     axios

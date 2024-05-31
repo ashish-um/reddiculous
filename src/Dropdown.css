@@ -1,0 +1,60 @@
+.dropdown {
+  position: relative;
+  width: fit-content;
+  margin-left: 10px;
+  z-index: 4;
+}
+.dropdown-active {
+  border-radius: 10px;
+}
+
+.elements {
+  position: absolute;
+  top: 50px;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-element);
+  z-index: -1;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--body-background) 0 10px 10px;
+  max-height: 0;
+  width: max-content;
+}
+
+.element {
+  background-color: red;
+  padding: 10px 30px;
+  background: var(--card-element);
+}
+
+.element:hover {
+  background-color: var(--card-background);
+}
+
+.show-dropdown {
+  animation: dropdown-show 800ms ease-out forwards;
+  /* max-height: 40px; */
+}
+.collapse-dropdown {
+  animation: dropdown-collapse 200ms ease forwards;
+}
+
+@keyframes dropdown-collapse {
+  from {
+    max-height: 20svh;
+  }
+
+  to {
+    max-height: 0;
+  }
+}
+@keyframes dropdown-show {
+  from {
+    max-height: 0;
+  }
+
+  to {
+    max-height: 50svh;
+  }
+}

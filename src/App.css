@@ -131,10 +131,11 @@ form input:focus {
   /* margin-inline: 20px; */
 }
 .sub-banner-img img {
-  object-fit: fill;
+  object-fit: cover;
   height: 100%;
   /* height: ; */
   /* border-radius: var(--img-border-radius); */
+  min-height: 50px;
   max-height: 200px;
 }
 
@@ -435,12 +436,12 @@ hr {
   /* max-height: 40px; */
 }
 .collapse {
-  animation: comment-collapse 200ms ease-out forwards;
+  animation: comment-collapse 300ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
 @keyframes comment-collapse {
   from {
-    max-height: 80svh;
+    max-height: 20svh;
   }
 
   to {

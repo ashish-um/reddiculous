@@ -1,14 +1,62 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Posts from "./Posts";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { BrowserView, MobileView } from "react-device-detect";
+import Dropdown from "./Dropdown";
+import { useNavigate } from "react-router-dom";
 
 function Subreddit() {
-  const { sub } = useParams();
+  const { sub, sort } = useParams();
   const [data, SetData] = useState({});
   const [error, SetError] = useState("");
+  const [sortActive, SetSortActive] = useState(
+    sort ? sort[0].toUpperCase() + sort.slice(1, 200) : "Hot"
+  );
+  const [topActive, SetTopActive] = useState("today");
+  const navigate = useNavigate();
+  const [searchParams, SetSearchParams] = useSearchParams({ sort: "", t: "" });
+  const prevSort = useRef(sortActive);
+
+  const [firstLoad, SetFirstLoad] = useState(false);
+
+  const topValues = [
+    "past hour",
+    "past 24 hours",
+    "past week",
+    "past month",
+    "past year",
+    "all time",
+  ];
+  console.log(`sort Active ${sortActive}, prevSort: ${prevSort.current}`);
+  console.log("Active Sort Subredit:", sortActive);
+
   useEffect(() => {
+    navigate(`/r/${sub}/${sortActive.toLowerCase()}`);
+  }, [sortActive]);
+
+  useEffect(() => {
+    if (firstLoad) {
+      let value = "";
+      if (topActive == topValues[0]) {
+        value = "hour";
+      } else if (topActive == topValues[1]) {
+        value = "day";
+      } else if (topActive == topValues[2]) {
+        value = "week";
+      } else if (topActive == topValues[3]) {
+        value = "month";
+      } else if (topActive == topValues[4]) {
+        value = "year";
+      } else if (topActive == topValues[5]) {
+        value = "all";
+      }
+      SetSearchParams({ sort: "top", t: value });
+    }
+  }, [topActive]);
+
+  useEffect(() => {
+    SetFirstLoad(true);
     var options = {
       method: "GET",
       url: "https://old.reddit.com/r/indiasocial/search.json",
@@ -136,14 +184,15 @@ function Subreddit() {
                       <p
                         style={{
                           maxWidth: "600px",
-                          paddingInline: "4px",
+                          paddingRight: "6px",
                           opacity: ".8",
-                          fontSize: "clamp(15px,2vw,17px)",
+                          fontSize: "clamp(12px,2vw,17px)",
                         }}
                       >
                         {" "}
-                        {data.public_description.slice(0, 170) ||
-                          data.header_title}
+                        {data.public_description.length > 168
+                          ? data.public_description.slice(0, 170) + "..."
+                          : data.public_description || data.header_title}
                       </p>
                     </div>
                   </div>
@@ -156,10 +205,29 @@ function Subreddit() {
                 </div>
               </div>
             </div>
+            <div
+              className="banner-data-holder"
+              style={{ display: "flex", height: "auto" }}
+            >
+              <Dropdown
+                l_active={SetSortActive}
+                current_active={sortActive}
+                l_elements={["Hot", "New", "Top", "Rising"]}
+              />
+              {sortActive.toLowerCase() == "top" && (
+                <Dropdown
+                  l_active={SetTopActive}
+                  current_active={topActive}
+                  l_elements={topValues}
+                />
+              )}
+            </div>
             <Posts />
           </div>
         ) : (
-          ""
+          <div className="container">
+            <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
+          </div>
         )
       ) : (
         `Error: ${error}`

@@ -15,6 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Posts />} />
           <Route path="/r/:sub" element={<Subreddit />} />
+          <Route path="/r/:sub/:sort" element={<Subreddit />} />
           <Route path="/r/:sub/comments/:id/:post/" element={<Comments />} />
           <Route path="/u/:user" element={<User />} />
           <Route path="/search" element={<Search />} />
