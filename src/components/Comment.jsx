@@ -17,7 +17,7 @@ function Comment({ data, className, color, first }) {
 
   function decodeHtml(l_html, l_body) {
     const txt = document.createElement("textarea");
-    if (l_html.includes("preview.redd.it")) {
+    if (l_html.includes("preview.redd.it") && !l_html.includes("giphy.com")) {
       console.log("includes");
       txt.innerHTML =
         l_html
@@ -124,11 +124,11 @@ function Comment({ data, className, color, first }) {
             }}
             className="label"
           >
-            {/* <i class="bx bx-plus-circle"></i>
-            <i class="bx bxs-plus-square"></i> */}
             <i
               className={
-                !childrenDisplay ? "bx bxs-plus-circle" : "bx bxs-minus-circle"
+                childrenDisplay
+                  ? "bx bx-collapse-vertical"
+                  : "bx bx-expand-vertical"
               }
             ></i>
           </Link>
@@ -138,6 +138,7 @@ function Comment({ data, className, color, first }) {
         <div
           style={{
             fontSize: "clamp(16px, 3vw, 20px)",
+            padding: "10px",
             opacity: childrenDisplay ? "1" : "0",
           }}
           dangerouslySetInnerHTML={{ __html: decodeHtml(data.body_html) }}

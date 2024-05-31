@@ -5,17 +5,16 @@ import Nav from "./components/Nav";
 import Comments from "./components/Comments";
 import User from "./components/User";
 import Search from "./components/Search";
-import { useState } from "react";
+import Subreddit from "./components/Subreddit";
 
 function App() {
-  const [params, SetParams] = useState("r/all");
   return (
     <>
       <Router>
-        <Nav param={params} />
+        <Nav />
         <Routes>
-          <Route path="/" element={<Posts setParam={SetParams} />} />
-          <Route path="/r/:sub" element={<Posts setParam={SetParams} />} />
+          <Route path="/" element={<Posts />} />
+          <Route path="/r/:sub" element={<Subreddit />} />
           <Route path="/r/:sub/comments/:id/:post/" element={<Comments />} />
           <Route path="/u/:user" element={<User />} />
           <Route path="/search" element={<Search />} />

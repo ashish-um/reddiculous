@@ -20,7 +20,7 @@ function Nav() {
   return (
     <div className="header">
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Link style={{ height: "30px" }} to="/r/all">
+        <Link style={{ height: "30px" }} to="/">
           <img
             src="/reddiculous/icon_small.png"
             width={30}
@@ -44,6 +44,7 @@ function Nav() {
           <input
             type="search"
             name="search"
+            placeholder="search..."
             value={searchValue}
             onChange={(e) => SetSearchValue(e.target.value)}
           />

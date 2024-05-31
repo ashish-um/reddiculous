@@ -47,7 +47,9 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
     SetReqError("");
     if (
       sub != prevSub.current ||
-      prevSearchQuery.current != searchParam.get("q")
+      (prevSearchQuery &&
+        prevSearchQuery.current != searchParam.get("q") &&
+        !(id && post))
     ) {
       SetClicked(clicked == 0 ? 1 : 0);
       window.scrollTo(0, 0);
@@ -85,6 +87,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
           // console.log(response.data);
           // window.removeEventListener("scroll", handleScroll);
           setData(response.data[0].data.children);
+          window.removeEventListener("scroll", handleScroll);
           setCommentsData(response.data[1].data.children);
         } else {
           console.log(response.data.data.children);
@@ -164,7 +167,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
 
   return (
     <div className="container">
-      {sub ? <h2 className="post-title">r/{sub}</h2> : ""}
+      {/* {sub && <h2 className="post-title">r/{sub}</h2>} */}
       {data.length ? (
         <>
           {data.map((item, index) => {
