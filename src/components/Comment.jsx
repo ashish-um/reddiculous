@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 function Comment({ data, className, color, first }) {
   const Threadcolor = useRef(Math.random() * 360);
-  const [hide, SetHide] = useState(0);
+  const [hide, SetHide] = useState(data?.depth > 1 ? 1 : 0);
   const [loaded, SetLoaded] = useState(false);
   const [childrenDisplay, SetChildrenDisplay] = useState(true);
 
@@ -15,7 +15,7 @@ function Comment({ data, className, color, first }) {
     }, 1000);
   }, []);
 
-  function decodeHtml(l_html, l_body) {
+  function decodeHtml(l_html) {
     const txt = document.createElement("textarea");
     if (l_html.includes("preview.redd.it") && !l_html.includes("giphy.com")) {
       console.log("includes");

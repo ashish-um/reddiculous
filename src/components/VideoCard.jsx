@@ -25,7 +25,16 @@ function VideoCard(props) {
         style={{ aspectRatio: props?.aspect }}
       >
         <ReactPlayer
-          light={props.img ? <img src={props.img} /> : false}
+          light={
+            props.img ? (
+              <img
+                src={props.img}
+                style={{ maxHeight: "var(--max-video-height)" }}
+              />
+            ) : (
+              false
+            )
+          }
           muted={props.muted}
           playing={play}
           playsinline={true}

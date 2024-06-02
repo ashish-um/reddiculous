@@ -7,17 +7,19 @@ function Search() {
   const [postsLoaded, SetPostsLoaded] = useState(false);
   const [showPosts, SetShowPosts] = useState(true);
 
-  return (
-    <>
-      <BrowserView>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Posts setPostLoad={SetPostsLoaded} />
-
-          <SearchSubs setPostLoad={postsLoaded} />
-        </div>
-      </BrowserView>
-      <MobileView>
-        <div style={{ display: "flex", gap: "8px", margin: "8px 8px 0 8px" }}>
+  if (window.innerWidth < 1200) {
+    return (
+      <div>
+        <div
+          className="banner-data-holder"
+          style={{
+            padding: "10px",
+            display: "flex",
+            gap: "8px",
+            marginInline: "auto",
+            height: "auto",
+          }}
+        >
           <div
             className={`label clickable ${showPosts && "active"}`}
             onClick={() => {
@@ -36,7 +38,19 @@ function Search() {
           </div>
         </div>
         {showPosts ? <Posts /> : <SearchSubs setPostLoad={true} />}
-      </MobileView>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Posts setPostLoad={SetPostsLoaded} />
+
+          <SearchSubs setPostLoad={true} />
+        </div>
+      </div>
     </>
   );
 }

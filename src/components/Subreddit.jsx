@@ -2,7 +2,6 @@ import { React, useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Posts from "./Posts";
 import { useParams, useSearchParams } from "react-router-dom";
-import { BrowserView, MobileView } from "react-device-detect";
 import Dropdown from "./Dropdown";
 import { useNavigate } from "react-router-dom";
 
@@ -10,12 +9,14 @@ function Subreddit() {
   const { sub, sort } = useParams();
   const [data, SetData] = useState({});
   const [error, SetError] = useState("");
+  const [searchParams, SetSearchParams] = useSearchParams({ sort: "", t: "" });
   const [sortActive, SetSortActive] = useState(
     sort ? sort[0].toUpperCase() + sort.slice(1, 200) : "Hot"
   );
-  const [topActive, SetTopActive] = useState("today");
+  const [topActive, SetTopActive] = useState(
+    searchParams.get("t") ? searchParams.get("t") : "today"
+  );
   const navigate = useNavigate();
-  const [searchParams, SetSearchParams] = useSearchParams({ sort: "", t: "" });
   const prevSort = useRef(sortActive);
 
   const [firstLoad, SetFirstLoad] = useState(false);
@@ -28,11 +29,13 @@ function Subreddit() {
     "past year",
     "all time",
   ];
-  console.log(`sort Active ${sortActive}, prevSort: ${prevSort.current}`);
-  console.log("Active Sort Subredit:", sortActive);
+  // console.log(`sort Active ${sortActive}, prevSort: ${prevSort.current}`);
+  // console.log("Active Sort Subredit:", sortActive);
 
   useEffect(() => {
-    navigate(`/r/${sub}/${sortActive.toLowerCase()}`);
+    if (firstLoad) {
+      navigate(`/r/${sub}/${sortActive.toLowerCase()}`);
+    }
   }, [sortActive]);
 
   useEffect(() => {
@@ -56,6 +59,9 @@ function Subreddit() {
   }, [topActive]);
 
   useEffect(() => {
+    if (sub) {
+      document.title = "r/" + sub;
+    }
     SetFirstLoad(true);
     var options = {
       method: "GET",
@@ -68,16 +74,16 @@ function Subreddit() {
         // t: "all",
       },
     };
-    console.log("requesting");
+    // console.log("requesting");
     axios
       .request(options)
       .then((response) => {
-        console.log(
-          response.data.data.children.filter(
-            (item) => item.data.display_name_prefixed == "r/" + sub
-          )[0].data
-          // response.data.data.children
-        );
+        // console.log(
+        //   response.data.data.children.filter(
+        //     (item) => item.data.display_name_prefixed == "r/" + sub
+        //   )[0].data
+        //   // response.data.data.children
+        // );
         SetData(
           response.data.data.children.filter(
             (item) => item.data.display_name_prefixed == "r/" + sub
@@ -86,11 +92,9 @@ function Subreddit() {
       })
       .catch((reject) => {
         SetError(reject.message);
-      })
-      .then(() => {
-        console.log("requested");
+        SetData({});
       });
-  }, []);
+  }, [sub]);
 
   function SetMembers(members) {
     if (members > 999999) {
@@ -103,38 +107,21 @@ function Subreddit() {
   }
   return (
     <>
-      {!error ? (
-        Object.keys(data).length !== 0 ? (
-          <div>
+      <>
+        {Object.keys(data).length !== 0 ? (
+          <div className="show-dropdown">
             <div className="sub-banner">
-              {data.banner_background_image || data.mobile_banner_image ? (
-                <>
-                  <BrowserView>
-                    <div className="sub-banner-img">
-                      <img
-                        width="100%"
-                        // style={{ objectFit: "cover" }}
-                        src={
-                          data.banner_background_image.replaceAll("amp;", "") ||
-                          data.mobile_banner_image.replaceAll("amp;", "")
-                        }
-                      />
-                    </div>
-                  </BrowserView>
-                  <MobileView>
-                    <div className="sub-banner-img">
-                      <img
-                        width="100%"
-                        // height={70}
-                        style={{ objectFit: "cover" }}
-                        src={
-                          data.mobile_banner_image.replaceAll("amp;", "") ||
-                          data.banner_background_image.replaceAll("amp;", "")
-                        }
-                      />
-                    </div>
-                  </MobileView>
-                </>
+              {data.mobile_banner_image || data.banner_background_image ? (
+                <div className="sub-banner-img">
+                  <img
+                    width="100%"
+                    // height={70}
+                    src={
+                      data.mobile_banner_image.replaceAll("amp;", "") ||
+                      data.banner_background_image.replaceAll("amp;", "")
+                    }
+                  />
+                </div>
               ) : (
                 <div
                   style={{
@@ -192,7 +179,9 @@ function Subreddit() {
                         {" "}
                         {data.public_description.length > 168
                           ? data.public_description.slice(0, 170) + "..."
-                          : data.public_description || data.header_title}
+                          : data.public_description ||
+                            data.header_title ||
+                            data.title}
                       </p>
                     </div>
                   </div>
@@ -222,16 +211,18 @@ function Subreddit() {
                 />
               )}
             </div>
-            <Posts />
           </div>
         ) : (
           <div className="container">
-            <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
+            {/* <img
+                src="/reddiculous/spinner2.gif"
+                width="100px"
+                height="100px"
+              /> */}
           </div>
-        )
-      ) : (
-        `Error: ${error}`
-      )}
+        )}
+        <Posts />
+      </>
     </>
   );
 }

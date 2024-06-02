@@ -88,7 +88,7 @@ form input:focus {
 .banner-data-holder {
   max-width: var(--max-card-width);
   margin: auto;
-  width: 100%;
+  width: -webkit-fill-available;
   height: 100px;
   position: relative;
 }
@@ -160,10 +160,6 @@ form input:focus {
   /* min-width: 200px; */
   /* max-width: 800px; */
   /* padding: 0px 40px; */
-}
-
-hr {
-  width: -webkit-fill-available;
 }
 
 .card-header {
@@ -476,6 +472,8 @@ hr {
 .search-sub {
   margin-top: 6px;
   margin-inline: 12px;
+  min-width: 200px;
+  /* min-width: max-content; */
 }
 .subcard {
   display: flex;
@@ -549,11 +547,17 @@ hr {
 }
 
 @media only screen and (max-width: 600px) {
+  :root {
+    --max-video-height: 400px; /* Change this value as needed */
+  }
   .img-bg {
     /* opacity: 0; */
     display: none;
   }
   .banner-data-holder {
     height: 120px;
+  }
+  .card {
+    padding: 10px;
   }
 }

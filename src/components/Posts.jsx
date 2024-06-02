@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import Card from "./Card";
@@ -25,14 +25,24 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
     sort: "",
     t: "",
   });
-  const prevSub = useRef(sub);
-  const prevSearchQuery = useRef(searchParam.get("q"));
-  const prevSort = useRef(sort);
-  const [firstLoad, SetFirstLoad] = useState(false);
+
+  const [firstLoad, SetFirstLoad] = useState(true);
+
+  const storeData = useRef("main-data");
+  const storeAfter = useRef("main-data-after");
+  const storeScroll = useRef("scroll");
+  const cacheIt = useRef();
 
   // console.log("Search:", searchParam.get("q"));
   // URL.current = user && `https://old.reddit.com/u/${user}/submitted.json`;
   // var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
+
+  function setLocalItems(main, after, scroll) {
+    storeData.current = main;
+    storeAfter.current = after;
+    storeScroll.current = scroll;
+    window.scrollTo(0, 0);
+  }
 
   useEffect(() => {
     // set State Default
@@ -40,45 +50,79 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
       setParam(sub ? `r/${sub}` : "r/all");
     }
     setData([]);
-    if (sub) {
-      URL.current = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
-    }
-    if (user) {
-      URL.current = `https://old.reddit.com/user/${user}/submitted.json`;
-    }
-    if (searchParam.get("q")) {
-      URL.current = `https://old.reddit.com/search.json`;
-    }
-    if (sort) {
-      URL.current = `https://old.reddit.com/r/${sub}/${sort}.json`;
-    }
-
     setAfter("");
-    SetReqError("");
-    // if (
-    //   sub != prevSub.current ||
-    //   (prevSearchQuery &&
-    //     prevSearchQuery.current != searchParam.get("q") &&
-    //     !(id && post)) ||
-    //   (sort && sort != prevSort.current)
-    // ) {
-    //   SetClicked(clicked == 0 ? 1 : 0);
-    //   window.scrollTo(0, 0);
-    // }
 
-    if (firstLoad) {
-      SetClicked(clicked == 0 ? 1 : 0);
-      window.scrollTo(0, 0);
-    }
+    const localItems = { ...sessionStorage };
+
+    cacheIt.current = true;
+    storeData.current = `homedata`;
+    storeAfter.current = `homeafter`;
+    storeScroll.current = `homescroll`;
 
     if (post && id) {
       // console.log("Entered Post", post);
       URL.current = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json?limit=100`;
+      cacheIt.current = false;
+    } else if (sub) {
+      URL.current = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
+      cacheIt.current = true;
+      setLocalItems(
+        `del_sub${sub}`,
+        `del_subafter${sub}`,
+        `del_subscroll${sub}`
+      );
+    } else if (user) {
+      URL.current = `https://old.reddit.com/user/${user}/submitted.json`;
+      cacheIt.current = true;
+      setLocalItems(
+        `del_user${user}`,
+        `del_userafter${user}`,
+        `del_userscroll${user}`
+      );
+    } else if (searchParam.get("q")) {
+      URL.current = `https://old.reddit.com/search.json`;
+      cacheIt.current = true;
+      setLocalItems(`del_search`, `del_searchafter`, `del_searchscroll`);
+      // for (var item in localItems) {
+      //   if (item.startsWith("del_search")) {
+      //     sessionStorage.removeItem(item);
+      //   }
+      // }
+    } else if (sort) {
+      URL.current = `https://old.reddit.com/r/${sub}/${sort}.json`;
+    } else {
+      for (var item in localItems) {
+        if (item.startsWith("del_")) {
+          sessionStorage.removeItem(item);
+        }
+      }
     }
+
+    // setAfter(sessionStorage.getItem("main-data-after"));
+    SetReqError("");
+
+    if (!firstLoad) {
+      SetClicked(clicked == 0 ? 1 : 0);
+      // window.scrollTo(0, 0);
+    }
+
     // console.log(true);
     const handleInteraction = () => setHasUserInteracted(true);
     window.addEventListener("click", handleInteraction);
-    return () => window.removeEventListener("click", handleInteraction);
+
+    if (sessionStorage.getItem("isReloaded")) {
+      console.log("Page was reloaded");
+      // sessionStorage.removeItem("isReloaded"); // Clean up
+      sessionStorage.clear();
+    } else {
+      sessionStorage.setItem("isReloaded", "true"); // Set flag
+    }
+
+    return () => {
+      window.removeEventListener("click", handleInteraction);
+      sessionStorage.removeItem("isReloaded"); // Clean up on component unmount
+      // sessionStorage.clear()
+    };
   }, [sub, post, searchParam.get("q"), sort, searchParam.get("t")]);
 
   // ***********************************************************************************************************
@@ -89,52 +133,81 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
   // ***********************************************************************************************************
   // ***********************************************************************************************************
   // ***********************************************************************************************************
+  // console.log("FIrst Load", firstLoad);
 
   useEffect(() => {
-    SetFirstLoad(true);
-    var options = {
-      method: "GET",
-      url: URL.current,
-      params: {
-        after: m_after,
-        q: searchParam.get("q"),
-        // include_over_18: "on",
-        sort: searchParam.get("sort"),
-        t: searchParam.get("t"),
-      },
-    };
-    axios
-      .request(options)
-      .then((response) => {
-        // console.log(
-        //   response.data.data.children.filter((item) => item.data.is_gallery)
-        // );
-        if (id && post) {
-          // console.log("checking");
-          // console.log(response.data);
-          // window.removeEventListener("scroll", handleScroll);
-          setData(response.data[0].data.children);
-          window.removeEventListener("scroll", handleScroll);
-          setCommentsData(response.data[1].data.children);
-        } else {
-          console.log(response.data.data.children);
-          if (!response.data.data.after) {
+    SetFirstLoad(false);
+    const savedData = JSON.parse(sessionStorage.getItem(storeData.current));
+    const savedPage = sessionStorage.getItem(storeAfter.current);
+    const savedScrollPosition = sessionStorage.getItem(storeScroll.current);
+
+    if (!savedData || (!firstLoad && cacheIt.current) || (post && id)) {
+      var options = {
+        method: "GET",
+        url: URL.current,
+        params: {
+          after: m_after,
+          q: searchParam.get("q"),
+          // include_over_18: "on",
+          sort: searchParam.get("sort"),
+          t: searchParam.get("t"),
+        },
+      };
+      axios
+        .request(options)
+        .then((response) => {
+          // console.log(response.data.data.children.filter((item) => !item.domain));
+          if (id && post) {
+            // WE ARE IN COMMENTS PAGE
+            // console.log("checking");
+            // console.log(response.data);
+            // window.removeEventListener("scroll", handleScroll);
+            setData(response.data[0].data.children);
+
             window.removeEventListener("scroll", handleScroll);
+
+            console.log("removed event listener");
+            setCommentsData(response.data[1].data.children);
+          } else {
+            console.log(response.data.data.children);
+            if (!response.data.data.after) {
+              window.removeEventListener("scroll", handleScroll);
+            }
+            setData((data) => [...data, ...response.data.data.children]);
+            setAfter(response.data.data.after);
+
+            if (cacheIt.current) {
+              sessionStorage.setItem(
+                storeData.current,
+                JSON.stringify([...data, ...response.data.data.children])
+              );
+              sessionStorage.setItem(
+                storeAfter.current,
+                response.data.data.after
+              );
+            }
+            // window.scrollTo(0, 1000);
           }
-          setData((data) => [...data, ...response.data.data.children]);
-          setAfter(response.data.data.after);
-        }
-        if (setPostLoad) {
-          setPostLoad(true);
-        }
-      })
-      .catch((reject) => {
-        console.log(reject.message);
-        SetReqError(reject.message);
-      })
-      .finally(() => {
-        loading.current = false;
-      });
+          if (setPostLoad) {
+            setPostLoad(true);
+          }
+        })
+        .catch((reject) => {
+          console.log(reject.message);
+          SetReqError(reject.message);
+        })
+        .finally(() => {
+          loading.current = false;
+        });
+    } else {
+      console.log("scolling should have been");
+      if (cacheIt.current) {
+        setData(savedData);
+        setAfter(savedPage);
+        window.scrollTo(0, 0);
+        setTimeout(() => window.scrollTo(0, savedScrollPosition), 600);
+      }
+    }
   }, [clicked]);
   //   console.log(sub);
   // console.log(data.length);
@@ -149,17 +222,13 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
     const hourDiff = Math.floor((nowDate - m_date) / (1000 * 60 * 60));
 
     if (monthDiff > 0 && monthDiff < 12) {
-      return monthDiff == 1 ? "1 month ago" : `${monthDiff} months ago`;
+      return monthDiff == 1 ? "1 month" : `${monthDiff} months`;
     } else if (monthDiff >= 12) {
-      return `${Math.floor(monthDiff / 12)} years ago`;
+      return `${Math.floor(monthDiff / 12)} years`;
     } else if (dateDiff > 0) {
-      return dateDiff == 1 ? `1 day ago` : `${dateDiff} days ago`;
+      return dateDiff == 1 ? `1 day` : `${dateDiff} days`;
     } else {
-      return hourDiff == 0
-        ? "just now"
-        : hourDiff == 1
-        ? `an hour ago`
-        : `${hourDiff} hrs ago`;
+      return hourDiff == 0 ? "now" : hourDiff == 1 ? `1 h` : `${hourDiff} h`;
     }
   }
   function decodeHtml(l_html) {
@@ -169,19 +238,28 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
   }
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    const timer = setTimeout(() => {
+      window.addEventListener("scroll", handleScroll);
+    }, 900);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timer); // Clear the timer to prevent the event listener from being added after unmount
+      window.removeEventListener("scroll", handleScroll); // Remove the event listener if it was added
     };
   }, []);
 
   const handleScroll = React.useCallback(() => {
+    if (cacheIt.current) {
+      sessionStorage.setItem(storeScroll.current, window.scrollY);
+      console.log(cacheIt.current);
+    }
+
     if (
       window.innerHeight + document.documentElement.scrollTop + 300 >=
       document.documentElement.scrollHeight
     ) {
       if (!loading.current) {
         loading.current = true;
+
         SetClicked((clicked) => clicked + 1);
       }
     }
@@ -190,6 +268,10 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
   function HandleNot(shit) {
     console.log("Shit not supported", shit);
     return "";
+  }
+
+  if (reqError) {
+    return <h1>Error: {reqError}</h1>;
   }
 
   return (
@@ -214,28 +296,30 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
               ) : ((l_item.is_reddit_media_domain && !l_item.is_video) ||
                   l_item.post_hint == "image") && // check if image
                 !l_item.url.endsWith(".gif") ? ( // check if not gif
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
+                <Card crosspost={crosspost} key={index} data={l_item}>
                   <ImageCard
                     preview={
                       l_item.post_hint == "image"
-                        ? l_item.preview.images[0].resolutions.length <= 4
+                        ? l_item.preview.images[0].resolutions.filter(
+                            (item) => item.height > 300
+                          ).length > 0
+                          ? l_item.preview.images[0].resolutions
+                              .filter((item) => item.height > 300)[0]
+                              .url.replaceAll("amp;", "")
+                          : l_item.preview.images[0].source.url.replaceAll(
+                              "amp;",
+                              ""
+                            )
+                        : l_item.url
+                    }
+                  />
+                </Card>
+              ) : l_item.domain.includes("imgur.com") ? ( // If Imgur
+                <Card crosspost={crosspost} key={index} data={l_item}>
+                  {l_item.preview && (
+                    <ImageCard
+                      preview={
+                        l_item.preview.images[0].resolutions.length <= 4
                           ? l_item.preview.images[0].source.url.replaceAll(
                               "amp;",
                               ""
@@ -243,61 +327,12 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                           : l_item.preview.images[0].resolutions[
                               l_item.preview.images[0].resolutions.length - 2
                             ].url.replaceAll("amp;", "")
-                        : l_item.url
-                    }
-                  />
-                </Card>
-              ) : l_item.domain.includes("imgur.com") ? ( // If Imgur
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
+                      }
+                    />
                   )}
-                >
-                  <ImageCard
-                    preview={
-                      l_item.preview.images[0].resolutions.length <= 4
-                        ? l_item.preview.images[0].source.url.replaceAll(
-                            "amp;",
-                            ""
-                          )
-                        : l_item.preview.images[0].resolutions[
-                            l_item.preview.images[0].resolutions.length - 2
-                          ].url.replaceAll("amp;", "")
-                    }
-                  />
                 </Card>
               ) : l_item.post_hint == "link" ? (
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
+                <Card crosspost={crosspost} key={index} data={l_item}>
                   <a
                     href={l_item.url}
                     target="_blank"
@@ -306,20 +341,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                     }}
                   >
                     <i className="bx bx-link-external redirect-link"></i>
-                    {/* <span
-                          style={{
-                            position: "absolute",
-                            zIndex: "3",
-                            fontSize: "40px",
-                            fontWeight: "bolder",
-                            transform: "rotate(180deg) translate(-50%, -50%)",
-                            top: "50%",
-                            left: "50%",
-                            textDecoration: "none",
-                          }}
-                        >
-                          &#10550;
-                        </span> */}
+
                     <div>
                       <ImageCard
                         preview={
@@ -337,46 +359,12 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                   </a>
                 </Card>
               ) : l_item.url.endsWith(".gif") ? ( // If Gif
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
+                <Card crosspost={crosspost} key={index} data={l_item}>
                   <ImageCard preview={l_item.url} />
                 </Card>
               ) : l_item.post_hint == "rich:video" &&
                 l_item.domain.includes("redgifs.com") ? (
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
+                <Card crosspost={crosspost} key={index} data={l_item}>
                   <VideoCard
                     muted={!hasUserInteracted}
                     url={
@@ -417,24 +405,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                   ></div> */}
                 </Card>
               ) : l_item.domain.includes("redgifs.com") ? (
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
+                <Card crosspost={crosspost} key={index} data={l_item}>
                   {l_item.preview &&
                   "reddit_video_preview" in l_item.preview ? (
                     <>
@@ -447,16 +418,9 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                       />
                     </>
                   ) : (
-                    // console.log("Sorry Not Found Previews")
                     <>
-                      {/* {console.log(l_item)} */}
                       <EmbedVideo
-                        url={
-                          l_item.crosspost_parent_list.length
-                            ? l_item.crosspost_parent_list[0].media_embed
-                                .content
-                            : l_item.media_embed.content
-                        }
+                        url={l_item.media_embed.content}
                         thumbnail={
                           l_item.thumbnail?.includes("https")
                             ? l_item.thumbnail
@@ -467,29 +431,28 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                   )}
                 </Card>
               ) : l_item.post_hint == "hosted:video" || l_item.is_video ? (
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
+                <Card crosspost={crosspost} key={index} data={l_item}>
                   <VideoCard
                     muted={!hasUserInteracted}
                     url={l_item.media.reddit_video.dash_url.replaceAll(
                       "&amp;",
                       "&"
+                    )}
+                    // img={
+                    //   l_item.preview.images[0].resolutions.filter(
+                    //     (item) => item.height > 300
+                    //   ).length > 0
+                    //     ? l_item.preview.images[0].resolutions
+                    //         .filter((item) => item.height > 300)[0]
+                    //         .url.replaceAll("amp;", "")
+                    //     : l_item.preview.images[0].source.url.replaceAll(
+                    //         "amp;",
+                    //         ""
+                    //       )
+                    // }
+                    img={l_item.preview?.images[0].source.url.replaceAll(
+                      "amp;",
+                      ""
                     )}
                   />
                   {/* <ImageCard preview={l_item.url} /> */}
@@ -497,24 +460,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
               ) : l_item.post_hint == "rich:video" ||
                 l_item.domain.includes("youtube.com") ||
                 l_item.domain.includes("streamable.com") ? (
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
+                <Card crosspost={crosspost} key={index} data={l_item}>
                   <VideoCard
                     url={l_item.url}
                     aspect={
@@ -524,113 +470,74 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                   {/* <ImageCard preview={l_item.url} /> */}
                 </Card>
               ) : l_item.is_gallery ? (
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
+                <Card crosspost={crosspost} key={index} data={l_item}>
                   <GalleryCard
                     items={l_item.gallery_data.items}
                     data={l_item.media_metadata}
                   />
                 </Card>
               ) : l_item.is_self ? (
-                <Card
-                  crosspost={crosspost}
-                  permalink={l_item.permalink}
-                  spoiler={l_item.spoiler}
-                  over_18={l_item.over_18}
-                  subreddit={l_item.subreddit_name_prefixed}
-                  date={handleDate(l_item.created)}
-                  key={index}
-                  fullname={l_item.author_fullname}
-                  title={l_item.title}
-                  user={l_item.author}
-                  thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                  comments={l_item.num_comments}
-                  ups={l_item.ups}
-                  downs={Math.round(
-                    l_item.ups / l_item.upvote_ratio - l_item.ups
-                  )}
-                >
-                  <div
-                    style={{
-                      borderRadius: "8px",
-                      width: "98%",
-                      padding: "10px",
-                      background: "#00000033",
-                      overflow: "overlay",
-                    }}
-                    dangerouslySetInnerHTML={{
-                      __html: decodeHtml(
-                        l_item.selftext_html
-                          ? !(post && id)
+                <Card crosspost={crosspost} key={index} data={l_item}>
+                  {l_item.selftext_html && (
+                    <div
+                      style={{
+                        borderRadius: "8px",
+                        width: "98%",
+                        padding: "10px",
+                        background: "#00000033",
+                        overflow: "overlay",
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: decodeHtml(
+                          l_item.selftext_html.length > 598 && !(post && id)
                             ? l_item.selftext_html?.slice(0, 600) + "..."
                             : l_item.selftext_html
-                          : ""
-                      ),
-                    }}
-                  ></div>
+                        ),
+                      }}
+                    ></div>
+                  )}
                 </Card>
               ) : (
                 // Cant Display
                 <>
-                  {HandleNot(l_item)}
-                  <Card
-                    crosspost={crosspost}
-                    permalink={l_item.permalink}
-                    spoiler={l_item.spoiler}
-                    over_18={l_item.over_18}
-                    subreddit={l_item.subreddit_name_prefixed}
-                    date={handleDate(l_item.created)}
-                    key={index}
-                    fullname={l_item.author_fullname}
-                    title={l_item.title}
-                    user={l_item.author}
-                    thumbnail={l_item.thumbnail.replaceAll("amp;", "")}
-                    comments={l_item.num_comments}
-                    ups={l_item.ups}
-                    downs={Math.round(
-                      l_item.ups / l_item.upvote_ratio - l_item.ups
-                    )}
-                  >
-                    <a
-                      href={l_item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "cornflowerblue" }}
-                    >
-                      {l_item.url}
-                    </a>
-                    <h3 style={{ color: "orange" }}>Nothing to show</h3>
-                  </Card>
+                  {l_item.url && (
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      <a
+                        href={l_item.url}
+                        target="_blank"
+                        style={{
+                          position: "relative",
+                        }}
+                      >
+                        <i className="bx bx-link-external redirect-link"></i>
+
+                        <div>
+                          <ImageCard
+                            preview={
+                              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmVq-OmHL5H_5P8b1k306pFddOe3049-il2A&s" ||
+                              "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/681px-Placeholder_view_vector.svg.png?20220519031949"
+                            }
+                          />
+                        </div>
+                      </a>
+                    </Card>
+                  )}
                 </>
               )
             ) : (
               "" // if auto mod: null
             );
           })}
+
           {!(post && id) && m_after && (
             <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
           )}
+          {m_after == null && "NOthing TO show"}
         </>
-      ) : reqError ? (
-        <h1>Error: {reqError}</h1>
       ) : !(m_after == null) ? (
-        <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
+        !sessionStorage.getItem(storeData) && (
+          <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
+        )
       ) : (
         "nothing to show"
       )}

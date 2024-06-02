@@ -54,49 +54,53 @@ function SearchSubs({ setPostLoad }) {
   return (
     <>
       {!error ? (
-        m_data.length && setPostLoad ? (
-          <div className="search-sub">
-            {m_data.map((item, index) => {
-              return <SubCard key={index} data={item.data} />;
-            })}
-            {!loading ? (
-              <div
-                style={{ marginBottom: "20px" }}
-                className="label clickable"
-                onClick={() => {
-                  SetLoader((loader) => !loader);
-                  SetLoading(true);
-                }}
-              >
-                Show More
-              </div>
-            ) : (
-              <img
-                style={{
-                  width: "-webkit-fill-available",
-                  objectFit: "contain",
-                }}
-                src="/reddiculous/spinner2.gif"
-                // width={50}
-                height={50}
-                alt="Loading..."
-              />
-            )}
-          </div>
-        ) : (
-          <MobileView>
-            <img
-              style={{
-                width: "-webkit-fill-available",
-                objectFit: "contain",
-              }}
-              src="/reddiculous/spinner2.gif"
-              // width={50}
-              height={100}
-              alt="Loading..."
-            />
-          </MobileView>
-        )
+        <div className="search-sub">
+          {m_data.length && setPostLoad ? (
+            <div>
+              {m_data.map((item, index) => {
+                return <SubCard key={index} data={item.data} />;
+              })}
+              {!loading ? (
+                <div
+                  style={{ marginBottom: "20px" }}
+                  className="label clickable"
+                  onClick={() => {
+                    SetLoader((loader) => !loader);
+                    SetLoading(true);
+                  }}
+                >
+                  Show More
+                </div>
+              ) : (
+                <img
+                  style={{
+                    width: "-webkit-fill-available",
+                    objectFit: "contain",
+                  }}
+                  src="/reddiculous/spinner2.gif"
+                  // width={50}
+                  height={50}
+                  alt="Loading..."
+                />
+              )}
+            </div>
+          ) : (
+            <div>
+              {window.innerWidth < 1200 && (
+                <img
+                  style={{
+                    width: "-webkit-fill-available",
+                    objectFit: "contain",
+                  }}
+                  src="/reddiculous/spinner2.gif"
+                  // width={50}
+                  height={100}
+                  alt="Loading..."
+                />
+              )}
+            </div>
+          )}
+        </div>
       ) : (
         `Error: ${error}`
       )}

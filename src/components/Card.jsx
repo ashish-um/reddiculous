@@ -3,57 +3,83 @@ import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { BrowserView, MobileView } from "react-device-detect";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 
-function Card(props) {
+function Card({ children, data, crosspost }) {
   const [shared, SetShared] = useState(false);
+  const { sub, user } = useParams();
+
+  function handleDate(l_date) {
+    const m_date = new Date(l_date * 1000);
+    const nowDate = new Date();
+
+    const yearDiff = nowDate.getFullYear() - m_date.getFullYear();
+    const monthDiff = nowDate.getMonth() - m_date.getMonth() + yearDiff * 12;
+    const dateDiff = Math.floor((nowDate - m_date) / (1000 * 60 * 60 * 24));
+    const hourDiff = Math.floor((nowDate - m_date) / (1000 * 60 * 60));
+
+    if (monthDiff > 0 && monthDiff < 12) {
+      return monthDiff == 1 ? "1 month" : `${monthDiff} months`;
+    } else if (monthDiff >= 12) {
+      return `${Math.floor(monthDiff / 12)} years`;
+    } else if (dateDiff > 0) {
+      return dateDiff == 1 ? `1 day` : `${dateDiff} days`;
+    } else {
+      return hourDiff == 0 ? "now" : hourDiff == 1 ? `1 h` : `${hourDiff} h`;
+    }
+  }
 
   return (
-    <div className="card animate-load">
+    <div className="card ">
       <div className="card-header">
         <div className="card-header-data">
-          <Link
-            className="label clickable"
-            style={{ background: "var(--secondary-color)" }}
-            to={"/" + props.subreddit}
-          >
-            {props.subreddit}
-          </Link>
-          <Link className="label clickable" to={"/u/" + props.user}>
-            u/{props.user}
-          </Link>
-          {props.over_18 && (
+          {(!sub || sub == "popular" || sub == "all") && (
+            <Link
+              className="label clickable"
+              style={{ background: "var(--secondary-color)" }}
+              to={"/" + data.subreddit_name_prefixed}
+            >
+              {data.subreddit_name_prefixed}
+            </Link>
+          )}
+          {!(user || sub == "popular" || sub == "all") && sub && (
+            <Link className="label clickable" to={"/u/" + data.author}>
+              u/{data.author}
+            </Link>
+          )}
+          {data.over_18 && (
             <span className="label" style={{ background: "darkred" }}>
               NSFW
             </span>
           )}
-          {props.spoiler && (
+          {data.spoiler && (
             <span className="label" style={{ background: "darkcyan" }}>
               spoiler
             </span>
           )}
-          {props.crosspost && (
+          {crosspost && (
             <span className="label" style={{ background: "darkgreen" }}>
               crosspost
             </span>
           )}
-          <span style={{ opacity: ".6" }}>• {props.date}</span>
+          <span style={{ opacity: ".6" }}>• {handleDate(data.created)}</span>
         </div>
         <div>
           <h2
             className="card-title"
             dangerouslySetInnerHTML={{
-              __html: `${props.title}`,
+              __html: `${data.title}`,
             }}
           ></h2>
         </div>
       </div>
-      {props.children}
+      {children}
       <div className="card-footer">
         {/* <span>Created: {handleDate(item.data.created)} hrs ago</span> */}
         {/* <span style={{ color: "red" }}>{props.fullname}</span> */}
 
-        <Link to={props.permalink} className="label clickable">
-          <i className="bx bxs-comment-detail"></i> {props.comments}
+        <Link to={data.permalink} className="label clickable">
+          <i className="bx bxs-comment-detail"></i> {data.num_comments}
         </Link>
 
         <span className="label">
@@ -61,13 +87,13 @@ function Card(props) {
             className="bx bxs-upvote"
             style={{ transform: "translateY(-2px)" }}
           ></i>{" "}
-          {props.ups}
+          {data.ups}
           <span className="separator"></span>
           <i
             className="bx bxs-downvote"
             style={{ transform: "translateY(-1px)" }}
           ></i>{" "}
-          {props.downs}
+          {Math.round(data.ups / data.upvote_ratio - data.ups)}
         </span>
         <BrowserView
           style={{
@@ -82,7 +108,7 @@ function Card(props) {
                 window.location.origin +
                   window.location.pathname +
                   "#" +
-                  props.permalink
+                  data.permalink
               );
               SetShared(true);
 
@@ -122,12 +148,12 @@ function Card(props) {
         >
           <RWebShare
             data={{
-              text: props.title,
+              text: data.title,
               url:
                 window.location.origin +
                 window.location.pathname +
                 "#" +
-                props.permalink,
+                data.permalink,
               title: "Share",
             }}
             onClick={() => {

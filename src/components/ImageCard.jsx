@@ -6,6 +6,7 @@ function ImageCard(props) {
   return (
     <div className="img-container">
       <img
+        loading="lazy"
         width={"100%"}
         height={"100%"}
         style={{ objectFit: "contain" }}
