@@ -107,122 +107,119 @@ function Subreddit() {
   }
   return (
     <>
-      <>
-        {Object.keys(data).length !== 0 ? (
-          <div className="show-dropdown">
-            <div className="sub-banner">
-              {data.mobile_banner_image || data.banner_background_image ? (
-                <div className="sub-banner-img">
-                  <img
-                    width="100%"
-                    // height={70}
-                    src={
-                      data.mobile_banner_image.replaceAll("amp;", "") ||
-                      data.banner_background_image.replaceAll("amp;", "")
-                    }
-                  />
-                </div>
-              ) : (
-                <div
+      {Object.keys(data).length !== 0 ? (
+        <div
+          className={
+            !sessionStorage.getItem(`del_sub${sub}`) && `show-dropdown`
+          }
+        >
+          <div className="sub-banner">
+            {data.mobile_banner_image || data.banner_background_image ? (
+              <div className="sub-banner-img">
+                <img
+                  width="100%"
+                  // height={70}
+                  src={
+                    data.mobile_banner_image.replaceAll("amp;", "") ||
+                    data.banner_background_image.replaceAll("amp;", "")
+                  }
+                />
+              </div>
+            ) : (
+              <div
+                style={{
+                  height: "100px",
+                  background: "var(--card-background)",
+                }}
+              ></div>
+            )}
+            <div className="banner-data-holder">
+              <div className="banner-data">
+                <img
+                  width={80}
                   style={{
-                    height: "100px",
-                    background: "var(--card-background)",
+                    background: data.primary_color || "var(--body-background)",
                   }}
-                ></div>
-              )}
-              <div className="banner-data-holder">
-                <div className="banner-data">
-                  <img
-                    width={80}
+                  src={
+                    data.community_icon.replaceAll("amp;", "") ||
+                    data.icon_img ||
+                    "/reddiculous/icon_big.png"
+                  }
+                />
+                <div className="banner-subdata">
+                  <div
                     style={{
-                      background:
-                        data.primary_color || "var(--body-background)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      // flexWrap: "wrap",
                     }}
-                    src={
-                      data.community_icon.replaceAll("amp;", "") ||
-                      data.icon_img ||
-                      "/reddiculous/icon_big.png"
-                    }
-                  />
-                  <div className="banner-subdata">
-                    <div
+                  >
+                    <h1 style={{ fontSize: "clamp(15px,2vw,25px)" }}>
+                      {data.display_name_prefixed}
+                    </h1>
+                    <h4
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        // flexWrap: "wrap",
+                        color: "var(--primary-color)",
+                        fontSize: "clamp(12px,2vw,15px)",
+                        // paddingTop: "5px",
                       }}
                     >
-                      <h1 style={{ fontSize: "clamp(15px,2vw,25px)" }}>
-                        {data.display_name_prefixed}
-                      </h1>
-                      <h4
-                        style={{
-                          color: "var(--primary-color)",
-                          fontSize: "clamp(12px,2vw,15px)",
-                          // paddingTop: "5px",
-                        }}
-                      >
-                        • {SetMembers(data.subscribers)} users
-                      </h4>
-                    </div>
-                    <div style={{ height: "20px" }}>
-                      {/* <h4>{data.title} | </h4> */}
-                      <p
-                        style={{
-                          maxWidth: "600px",
-                          paddingRight: "6px",
-                          opacity: ".8",
-                          fontSize: "clamp(12px,2vw,17px)",
-                        }}
-                      >
-                        {" "}
-                        {data.public_description.length > 168
-                          ? data.public_description.slice(0, 170) + "..."
-                          : data.public_description ||
-                            data.header_title ||
-                            data.title}
-                      </p>
-                    </div>
+                      • {SetMembers(data.subscribers)} users
+                    </h4>
                   </div>
-                  {/* 
+                  <div style={{ height: "20px" }}>
+                    {/* <h4>{data.title} | </h4> */}
+                    <p
+                      style={{
+                        maxWidth: "600px",
+                        paddingRight: "6px",
+                        opacity: ".8",
+                        fontSize: "clamp(12px,2vw,17px)",
+                      }}
+                    >
+                      {" "}
+                      {data.public_description.length > 168
+                        ? data.public_description.slice(0, 170) + "..."
+                        : data.public_description ||
+                          data.header_title ||
+                          data.title}
+                    </p>
+                  </div>
+                </div>
+                {/* 
                 {data.over18 && (
                   <div className="label" style={{ background: "darkred" }}>
                     NSFW
                   </div>
                 )} */}
-                </div>
               </div>
             </div>
-            <div
-              className="banner-data-holder"
-              style={{ display: "flex", height: "auto" }}
-            >
+          </div>
+          <div
+            className="banner-data-holder"
+            style={{ display: "flex", height: "auto" }}
+          >
+            <Dropdown
+              l_active={SetSortActive}
+              current_active={sortActive}
+              l_elements={["Hot", "New", "Top", "Rising"]}
+            />
+            {sortActive.toLowerCase() == "top" && (
               <Dropdown
-                l_active={SetSortActive}
-                current_active={sortActive}
-                l_elements={["Hot", "New", "Top", "Rising"]}
+                l_active={SetTopActive}
+                current_active={topActive}
+                l_elements={topValues}
               />
-              {sortActive.toLowerCase() == "top" && (
-                <Dropdown
-                  l_active={SetTopActive}
-                  current_active={topActive}
-                  l_elements={topValues}
-                />
-              )}
-            </div>
+            )}
           </div>
-        ) : (
-          <div className="container">
-            {/* <img
-                src="/reddiculous/spinner2.gif"
-                width="100px"
-                height="100px"
-              /> */}
-          </div>
-        )}
-        <Posts />
-      </>
+          <Posts />
+        </div>
+      ) : (
+        <div className="container">
+          <img src="/reddiculous/spinner2.gif" width="100px" height="100px" />
+        </div>
+      )}
     </>
   );
 }

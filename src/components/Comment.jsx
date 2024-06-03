@@ -84,7 +84,17 @@ function Comment({ data, className, color, first }) {
         }}
       >
         <div
-          className={className}
+          className={`${className}`}
+          onClick={() => {
+            SetHide((hide) => (hide == 1 ? 2 : 1));
+            if (hide == 1) {
+              SetChildrenDisplay(true);
+            } else {
+              setTimeout(() => {
+                SetChildrenDisplay(false);
+              }, 200);
+            }
+          }}
           style={{
             background: `hsl(${color || Threadcolor.current}, 50%, 70%)`,
           }}

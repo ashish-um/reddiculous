@@ -63,6 +63,16 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
       // console.log("Entered Post", post);
       URL.current = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json?limit=100`;
       cacheIt.current = false;
+    } else if (sort) {
+      // sessionStorage.removeItem(`del_sub${sub}`);
+      // sessionStorage.removeItem(`del_subafter${sub}`);
+      // sessionStorage.removeItem(`del_subscroll${sub}`);
+      setLocalItems(
+        `del_sub${sub}`,
+        `del_subafter${sub}`,
+        `del_subscroll${sub}`
+      );
+      URL.current = `https://old.reddit.com/r/${sub}/${sort}.json`;
     } else if (sub) {
       URL.current = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
       cacheIt.current = true;
@@ -88,8 +98,6 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
       //     sessionStorage.removeItem(item);
       //   }
       // }
-    } else if (sort) {
-      URL.current = `https://old.reddit.com/r/${sub}/${sort}.json`;
     } else {
       for (var item in localItems) {
         if (item.startsWith("del_")) {
@@ -205,7 +213,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
         setData(savedData);
         setAfter(savedPage);
         window.scrollTo(0, 0);
-        setTimeout(() => window.scrollTo(0, savedScrollPosition), 600);
+        setTimeout(() => window.scrollTo(0, savedScrollPosition), 400);
       }
     }
   }, [clicked]);
@@ -250,7 +258,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
   const handleScroll = React.useCallback(() => {
     if (cacheIt.current) {
       sessionStorage.setItem(storeScroll.current, window.scrollY);
-      console.log(cacheIt.current);
+      // console.log(cacheIt.current);
     }
 
     if (

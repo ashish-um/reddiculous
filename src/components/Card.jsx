@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { BrowserView, MobileView } from "react-device-detect";
@@ -7,7 +7,8 @@ import { useParams } from "react-router-dom";
 
 function Card({ children, data, crosspost }) {
   const [shared, SetShared] = useState(false);
-  const { sub, user } = useParams();
+  const { sub, user, post, id } = useParams();
+  const [localDataLoaded, SetLocalDataLoaded] = useState(false);
 
   function handleDate(l_date) {
     const m_date = new Date(l_date * 1000);
@@ -29,8 +30,19 @@ function Card({ children, data, crosspost }) {
     }
   }
 
+  useEffect(() => {
+    if (post && id) {
+      SetLocalDataLoaded(true);
+    } else {
+      setTimeout(() => SetLocalDataLoaded(true), 340);
+    }
+  }, []);
+
   return (
-    <div className="card ">
+    <div
+      className={`card ${localDataLoaded && "animate-load"}`}
+      style={{ opacity: 0 }}
+    >
       <div className="card-header">
         <div className="card-header-data">
           {(!sub || sub == "popular" || sub == "all") && (

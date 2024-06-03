@@ -1,3 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
 :root {
   --max-video-height: 600px;
   --max-image-height: 550px;
@@ -34,55 +38,21 @@ a {
 body {
   background: var(--body-background);
   /* font-family: "verdana, helvetica, sans-serif"; */
+  /* font-family: "Roboto", sans-serif; */
+  font-family: "Poppins", sans-serif;
 }
 li {
   margin-left: 20px;
 }
 
-.header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  /* background: var(--body-background) 25%; */
-  padding: 6px 20px;
-  width: -webkit-fill-available;
+.mobile-search {
+  position: absolute;
+  background: black;
+  inset: 0;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
-}
-.header::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: var(--body-background);
-  border-bottom: 1px solid var(--primary-color);
-  /* opacity: 0.4; */
-  z-index: -20;
-}
-
-form {
-  height: 35px;
-}
-form input {
-  width: 100%;
-  height: 100%;
-  padding: 5px 10px;
-  /* padding-left: 30px; */
-  border-radius: var(--img-border-radius);
-  font-size: 20px;
-  outline: none;
-  border: none;
-  border-bottom: 1px solid var(--primary-color);
-  background: var(--card-background);
-  box-sizing: border-box;
-}
-form input:focus {
-  border: 1px solid var(--primary-color);
-}
-
-.sub-input {
-  position: relative;
-  margin-left: 8px;
+  justify-content: center;
+  gap: 5px;
 }
 
 .banner-data-holder {
@@ -120,6 +90,7 @@ form input:focus {
   flex-direction: column;
   /* max-width: var(--max-card-width); */
   margin: auto;
+  min-height: 200px;
   /* padding-bottom: 75px; */
 }
 
@@ -251,6 +222,7 @@ form input:focus {
   border-radius: var(--card-border-radius);
   font-size: large;
   background: var(--card-background);
+  /* opacity: 0; */
 }
 .card-title {
   font-size: clamp(20px, 2vw, 30px);
@@ -462,7 +434,7 @@ form input:focus {
   /* flex-wrap: wrap; */
 }
 .animate-load {
-  animation: fader 800ms;
+  animation: fader 800ms forwards;
 }
 
 .animate-shared {
