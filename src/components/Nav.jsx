@@ -4,7 +4,27 @@ import { createSearchParams, useNavigate, useMatch } from "react-router-dom";
 import { Link } from "react-router-dom";
 import "../Navbar.css";
 import { BrowserView, MobileView } from "react-device-detect";
+import Settings from "./Settings";
+import SettingsSvg from "../assets/SettingsSvg";
+import SearchSvg from "../assets/SearchSvg";
 
+import {
+  DARK_PURPLE,
+  DARK_GREEN,
+  DARK_BLUE,
+  DARK_MULL,
+  LIGHT_PURPLE,
+  LIGHT_GREEN,
+  LIGHT_BLUE,
+  LIGHT_MULL,
+  BLACK_PURPLE,
+  BLACK_GREEN,
+  BLACK_BLUE,
+  BLACK_MULL,
+} from "../assets/themes/DefaultTheme";
+import MenuSvg from "../assets/MenuSvg";
+
+// import "../assets/themes/DefaultTheme.jsx";
 function Nav() {
   const navigate = useNavigate();
   const [searchValue, SetSearchValue] = useState("");
@@ -14,6 +34,7 @@ function Nav() {
   const [title, SetTitle] = useState();
   const matchSub = useMatch("/r/:sub/*");
   const matchUser = useMatch("/u/:user/");
+  const [showSettings, SetShowSettings] = useState(false);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -24,6 +45,41 @@ function Nav() {
     });
   }
 
+  const loadTheme = (theme) => {
+    document.documentElement.style.setProperty(
+      "--body-background",
+      theme.background
+    );
+    document.documentElement.style.setProperty(
+      "--card-background",
+      theme.cardBackground
+    );
+    // import "../assets/themes/default.css";
+    document.documentElement.style.setProperty(
+      "--card-element",
+      theme.cardElement
+    );
+    document.documentElement.style.setProperty(
+      "--primary-color",
+      theme.primary
+    );
+    document.documentElement.style.setProperty(
+      "--success-color",
+      theme.success
+    );
+    document.documentElement.style.setProperty(
+      "--secondary-color",
+      theme.secondaryColor
+    );
+    document.documentElement.style.setProperty("--text-color", theme.text);
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem("theme")) {
+      loadTheme(JSON.parse(localStorage.getItem("theme")));
+    }
+  }, []);
+
   useEffect(() => {
     if (matchSub) {
       SetTitle(`r/${matchSub.params.sub}`);
@@ -32,12 +88,6 @@ function Nav() {
     } else {
       SetTitle("Reddiculous");
     }
-    // if (sub) {`j
-    // } else if (user) {
-    //   SetTitle(`u/${user}`);
-    // } else {
-    // }
-    // SetTitle("Reddiculous");
   }, [matchSub, matchUser]);
 
   function TitleHeading() {
@@ -83,7 +133,17 @@ function Nav() {
         <BrowserView>
           <div className="header-content">
             <div style={{ display: "flex", alignItems: "center" }}>
-              <span
+              <div
+                style={{
+                  width: "35px",
+                  height: "35px",
+                  opacity: ".8",
+                  marginRight: "12px",
+                }}
+              >
+                <MenuSvg />
+              </div>
+              {/* <span
                 className="material-symbols-outlined"
                 style={{
                   fontSize: "clamp(20px, 2vw,35px)",
@@ -92,7 +152,7 @@ function Nav() {
                 }}
               >
                 menu
-              </span>
+              </span> */}
               <Link style={{ height: "clamp(20px, 2vw,30px)" }} to="/">
                 <img
                   src="/reddiculous/icon_small.png"
@@ -126,7 +186,13 @@ function Nav() {
                   value={searchValue}
                   onChange={(e) => SetSearchValue(e.target.value)}
                 />
-                <span className="search">
+                <div
+                  className="search"
+                  style={{ width: "35px", height: "35px" }}
+                >
+                  <SearchSvg />
+                </div>
+                {/* <span className="search">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     height="35px"
@@ -136,12 +202,19 @@ function Nav() {
                   >
                     <path d="M380.72-353.69q-95.58 0-162-66.32-66.41-66.32-66.41-161.53 0-95.2 66.32-161.52 66.32-66.32 161.48-66.32 95.17 0 161.79 66.32 66.61 66.32 66.61 161.44 0 41.36-14.77 80.77t-40.41 68.39l242.16 241.33q4.79 4.5 5.18 11.93.38 7.43-5.18 12.74-5.57 5.31-12.61 5.31-7.05 0-12.32-5.57L529.08-408.21q-29.8 26.4-69.18 40.46-39.37 14.06-79.18 14.06Zm-.16-33.85q81.65 0 137.88-56.09 56.23-56.09 56.23-137.91t-56.23-137.91q-56.23-56.09-137.88-56.09-81.77 0-138.09 56.09-56.32 56.09-56.32 137.91t56.32 137.91q56.32 56.09 138.09 56.09Z" />
                   </svg>
-                </span>
+                </span> */}
               </div>
               {/* <Link to={`/r/${searchValue}`}>Go</Link> */}
             </form>
-            <div className="label">
-              <span className="material-symbols-rounded">settings</span>
+            <div
+              onClick={() => {
+                SetShowSettings((val) => !val);
+              }}
+              className="label noselect"
+            >
+              <div style={{ width: "30px", height: "30px" }}>
+                <SettingsSvg />
+              </div>
               <h3 style={{ fontSize: "clamp(10px, 2vw,20px)" }}>Settings</h3>
             </div>
           </div>
@@ -149,16 +222,15 @@ function Nav() {
         <MobileView>
           <div className="header-content">
             <div style={{ display: "flex", alignItems: "center", flex: "1" }}>
-              <span
-                className="material-symbols-outlined"
+              <div
                 style={{
-                  fontSize: "clamp(26px, 2vw,35px)",
-                  // opacity: "0.4",
+                  width: "35px",
+                  height: "35px",
                   marginRight: "12px",
                 }}
               >
-                menu
-              </span>
+                <MenuSvg />
+              </div>
               <Link style={{ display: "flex", alignItems: "center" }} to="/">
                 <img
                   src="/reddiculous/icon_small.png"
@@ -178,26 +250,23 @@ function Nav() {
               </Link>
             </div>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <span
-                style={{ height: "30px", marginRight: "10px" }}
+              <div
+                style={{ height: "30px", width: "30px", marginRight: "10px" }}
                 onClick={() => SetShowSearch(true)}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="30px"
-                  viewBox="0 -960 960 960"
-                  width="30px"
-                  fill="#e8eaed"
-                >
-                  <path d="M380.72-353.69q-95.58 0-162-66.32-66.41-66.32-66.41-161.53 0-95.2 66.32-161.52 66.32-66.32 161.48-66.32 95.17 0 161.79 66.32 66.61 66.32 66.61 161.44 0 41.36-14.77 80.77t-40.41 68.39l242.16 241.33q4.79 4.5 5.18 11.93.38 7.43-5.18 12.74-5.57 5.31-12.61 5.31-7.05 0-12.32-5.57L529.08-408.21q-29.8 26.4-69.18 40.46-39.37 14.06-79.18 14.06Zm-.16-33.85q81.65 0 137.88-56.09 56.23-56.09 56.23-137.91t-56.23-137.91q-56.23-56.09-137.88-56.09-81.77 0-138.09 56.09-56.32 56.09-56.32 137.91t56.32 137.91q56.32 56.09 138.09 56.09Z" />
-                </svg>
-              </span>
-              <span
-                style={{ fontSize: "clamp(20px, 2vw,35px)" }}
-                className="material-symbols-rounded label"
+                <SearchSvg />
+              </div>
+              <div
+                onClick={() => {
+                  SetShowSettings((val) => !val);
+                  document.body.style.overflow = !showSettings
+                    ? "hidden"
+                    : "visible";
+                }}
+                style={{ width: "28px", height: "28px" }}
               >
-                settings
-              </span>
+                <SettingsSvg />
+              </div>
             </div>
             {showSearch && (
               <div
@@ -253,6 +322,23 @@ function Nav() {
           </div>
         </MobileView>
       </div>
+
+      {showSettings && (
+        <div>
+          <div>
+            <div className="settings">
+              <Settings />
+            </div>
+          </div>
+          <div
+            onClick={() => {
+              SetShowSettings(false);
+              document.body.style.overflow = "visible";
+            }}
+            className="settings-backdrop"
+          ></div>
+        </div>
+      )}
     </>
   );
 }

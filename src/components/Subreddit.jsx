@@ -1,9 +1,14 @@
 import { React, useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Posts from "./Posts";
-import { useParams, useSearchParams } from "react-router-dom";
+import {
+  createSearchParams,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import Dropdown from "./Dropdown";
 import { useNavigate } from "react-router-dom";
+import DropdownV2 from "./DropdownV2";
 
 function Subreddit() {
   const { sub, sort } = useParams();
@@ -11,19 +16,23 @@ function Subreddit() {
   const [error, SetError] = useState("");
   const [searchParams, SetSearchParams] = useSearchParams({ sort: "", t: "" });
   const [sortActive, SetSortActive] = useState(
-    sort ? sort[0].toUpperCase() + sort.slice(1, 200) : "Hot"
+    sort
+      ? searchParams.get("t")
+        ? searchParams.get("t")
+        : sort[0].toUpperCase() + sort.slice(1, 200)
+      : "Hot"
   );
   const [topActive, SetTopActive] = useState(
-    searchParams.get("t") ? searchParams.get("t") : "today"
+    searchParams.get("t") ? searchParams.get("t") : "Top"
   );
   const navigate = useNavigate();
-  const prevSort = useRef(sortActive);
+  const prevTop = useRef(topActive);
 
   const [firstLoad, SetFirstLoad] = useState(false);
 
   const topValues = [
     "past hour",
-    "past 24 hours",
+    "past day",
     "past week",
     "past month",
     "past year",
@@ -33,10 +42,24 @@ function Subreddit() {
   // console.log("Active Sort Subredit:", sortActive);
 
   useEffect(() => {
-    if (firstLoad) {
+    // if (firstLoad && !searchParams.get("t")) {
+    //   navigate(`/r/${sub}/${sortActive.toLowerCase()}`);
+    // }
+    console.log("sortActive", sortActive);
+    console.log(
+      "filter",
+      topValues.filter((item) => item.includes(sortActive)).length
+    );
+    if (!topValues.filter((item) => item.includes(sortActive)).length) {
       navigate(`/r/${sub}/${sortActive.toLowerCase()}`);
     }
+    // if (prevTop.current == topActive) {
+    // }
   }, [sortActive]);
+
+  // function ChangeSortActive(value) {
+  //   SetSortActive(value);
+  // }
 
   useEffect(() => {
     if (firstLoad) {
@@ -54,7 +77,12 @@ function Subreddit() {
       } else if (topActive == topValues[5]) {
         value = "all";
       }
-      SetSearchParams({ sort: "top", t: value });
+      // SetSearchParams({ sort: "top", t: value });
+      SetSortActive(value);
+      navigate({
+        pathname: `/r/${sub}/top`,
+        search: createSearchParams({ sort: "top", t: value }).toString(),
+      });
     }
   }, [topActive]);
 
@@ -200,7 +228,27 @@ function Subreddit() {
             className="banner-data-holder"
             style={{ display: "flex", height: "auto" }}
           >
-            <Dropdown
+            <div style={{ marginLeft: "10px" }}>
+              <DropdownV2
+                parent={true}
+                current_active={sortActive}
+                L_Activate={SetSortActive}
+              >
+                <div className="element">Hot</div>
+                <div className="element">New</div>
+                <div className="element">Rising</div>
+                <DropdownV2
+                  current_active={topActive}
+                  L_Activate={SetTopActive}
+                >
+                  {topValues.map((item) => {
+                    return <div className="element">{item}</div>;
+                  })}
+                  {/* <div className="element"></div> */}
+                </DropdownV2>
+              </DropdownV2>
+            </div>
+            {/* <Dropdown
               l_active={SetSortActive}
               current_active={sortActive}
               l_elements={["Hot", "New", "Top", "Rising"]}
@@ -211,7 +259,7 @@ function Subreddit() {
                 current_active={topActive}
                 l_elements={topValues}
               />
-            )}
+            )} */}
           </div>
           <Posts />
         </div>

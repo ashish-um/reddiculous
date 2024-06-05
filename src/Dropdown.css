@@ -1,8 +1,8 @@
 .dropdown {
   position: relative;
   width: fit-content;
-  margin-left: 10px;
-  z-index: 4;
+  /* margin-left: 10px; */
+  /* z-index: 4; */
 }
 .dropdown-active {
   border-radius: 10px;
@@ -14,18 +14,26 @@
   display: flex;
   flex-direction: column;
   background: var(--card-element);
-  z-index: -1;
+  z-index: 100;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--body-background) 0 10px 10px;
   max-height: 0;
   width: max-content;
 }
+.embed-elements {
+  position: relative;
+  top: 0;
+}
 
 .element {
   background-color: red;
-  padding: 10px 30px;
+  padding: 8px 20px;
   background: var(--card-element);
+}
+
+.elements > .element {
+  padding: 10px 30px;
 }
 
 .element:hover {
@@ -55,6 +63,6 @@
   }
 
   to {
-    max-height: 50svh;
+    max-height: 100svh;
   }
 }

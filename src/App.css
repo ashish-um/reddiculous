@@ -3,31 +3,44 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
 :root {
-  --max-video-height: 600px;
-  --max-image-height: 550px;
   --body-background: #1a1625;
   --card-background: #2f2b3a;
   --card-element: #46424f;
-  --img-border-radius: 12px;
-  --video-border-radius: 12px;
   --primary-color: #a688fa;
   --secondary-color: #25193b;
   --success-color: green;
+  --text-color: white;
+
+  --max-video-height: 600px;
+  --max-image-height: 550px;
+  --img-border-radius: 12px;
+  --video-border-radius: 12px;
   --comments-max-width: 850px;
   --card-border-radius: 17px;
   --max-card-width: 800px;
 }
 
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
 a {
-  color: white;
+  color: var(--text-color);
   text-decoration: none;
 }
 
 * {
   margin: 0;
   padding: 0;
-  color-scheme: dark;
+  /* color-scheme: dark; */
   -webkit-tap-highlight-color: transparent;
+  color: var(--text-color);
+  /* transition: color 1s; */
 }
 
 *::after,
@@ -35,11 +48,19 @@ a {
   display: block;
 }
 
+svg {
+  fill: var(--text-color);
+}
+
 body {
   background: var(--body-background);
   /* font-family: "verdana, helvetica, sans-serif"; */
   /* font-family: "Roboto", sans-serif; */
   font-family: "Poppins", sans-serif;
+  /* background: url("/pattern.png");
+  background-size: 20px;
+  background-blend-mode: overlay;
+  background-color: var(--body-background); */
 }
 li {
   margin-left: 20px;
@@ -47,7 +68,7 @@ li {
 
 .mobile-search {
   position: absolute;
-  background: black;
+  background: var(--body-background);
   inset: 0;
   display: flex;
   align-items: center;
@@ -168,6 +189,7 @@ li {
   border-radius: 100vw;
   background: var(--card-element);
   display: flex;
+  /* color: var(--text-color); */
   width: max-content;
   /* flex-direction: column; */
   align-items: center;
@@ -225,7 +247,8 @@ li {
   /* opacity: 0; */
 }
 .card-title {
-  font-size: clamp(20px, 2vw, 30px);
+  font-size: clamp(19px, 2vw, 25px);
+  color: var(--text-color);
 }
 
 .img-container {
@@ -298,6 +321,7 @@ li {
   font-size: clamp(14px, 2vw, 20px);
   background-color: rgba(0, 0, 0, 0.464);
   backdrop-filter: blur(8px);
+  color: white;
 }
 .carousel-translate {
   display: flex;
@@ -316,6 +340,7 @@ li {
   top: 40%;
   padding: 0px 8px;
   margin: 10px;
+  color: white;
   /* cursor: pointer; */
   text-shadow: rgba(0, 0, 0, 0.398) -2px 2px 3px;
   transition: 20ms;
@@ -405,6 +430,7 @@ li {
 }
 .collapse {
   animation: comment-collapse 300ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  opacity: 0.5;
 }
 
 @keyframes comment-collapse {
@@ -413,12 +439,12 @@ li {
   }
 
   to {
-    max-height: 30px;
+    max-height: 40px;
   }
 }
 @keyframes comment-show {
   from {
-    max-height: 30px;
+    max-height: 40px;
   }
 
   to {

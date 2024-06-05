@@ -1,0 +1,54 @@
+.radio {
+  display: flex;
+  background-color: var(--body-background);
+  width: max-content;
+  border-radius: 100vw;
+  gap: 10px;
+  padding: 6px 6px;
+  /* color: var(--primary-color); */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.222);
+}
+
+.radio-element {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 20px;
+  border: 1px solid transparent;
+  border-radius: 100vw;
+  transition: all 200ms;
+  font-weight: 600;
+  color: var(--primary-color);
+  svg {
+    fill: var(--primary-color) !important;
+  }
+}
+
+.radio-element:hover {
+  cursor: pointer;
+  /* background: rgba(255, 255, 255, 0.01); */
+  color: var(--text-color) !important;
+  svg {
+    fill: var(--text-color) !important;
+  }
+}
+.radio-active {
+  background-color: var(--card-background) !important;
+  box-shadow: rgba(0, 0, 0, 0.168) 0 0 8px;
+  color: var(--text-color) !important;
+  svg {
+    fill: var(--text-color) !important;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .radio-element {
+    font-size: 0;
+  }
+  .radio-element > div {
+    flex: 1 0 100%;
+  }
+  .radio {
+    gap: 0;
+  }
+}

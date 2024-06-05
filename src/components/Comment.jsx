@@ -4,11 +4,22 @@ import { useState, useRef, useEffect } from "react";
 
 function Comment({ data, className, color, first }) {
   const Threadcolor = useRef(Math.random() * 360);
-  const [hide, SetHide] = useState(data?.depth > 1 ? 1 : 0);
+  const [hide, SetHide] = useState(0);
   const [loaded, SetLoaded] = useState(false);
   const [childrenDisplay, SetChildrenDisplay] = useState(true);
 
   useEffect(() => {
+    if (data?.depth > 1) {
+      SetHide((hide) => (hide == 1 ? 2 : 1));
+      if (hide == 1) {
+        SetChildrenDisplay(true);
+      } else {
+        setTimeout(() => {
+          SetChildrenDisplay(false);
+        }, 200);
+      }
+    }
+
     setTimeout(() => {
       SetLoaded(true);
       console.log("Loaded");
