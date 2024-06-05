@@ -71,11 +71,9 @@ function Settings() {
       if (themeColorType === "GREEN") SetThemeColor(colors[1]);
       if (themeColorType === "BLUE") SetThemeColor(colors[2]);
       if (themeColorType === "MULL") SetThemeColor(colors[3]);
-
-      // console.log(
-      //   "THEME ACTIVE",
-      //   themeType[0].toUpperCase() + themeType.slice(1)
-      // );
+    } else {
+      SetThemeActive("Dark");
+      SetThemeColor(colors[0]);
     }
   }, []);
 

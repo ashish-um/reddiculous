@@ -210,7 +210,7 @@ function Nav() {
               onClick={() => {
                 SetShowSettings((val) => !val);
               }}
-              className="label noselect"
+              className="label noselect clickable"
             >
               <div style={{ width: "30px", height: "30px" }}>
                 <SettingsSvg />

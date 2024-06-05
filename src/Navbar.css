@@ -127,7 +127,16 @@
   background: rgba(0, 0, 0, 0.605);
   inset: 0;
   z-index: 2;
-  /* animation: settings-fader 200ms forwards; */
+  animation: backdrop-fade 200ms forwards;
+}
+
+@keyframes backdrop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes settings-fader {

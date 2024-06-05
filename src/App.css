@@ -321,8 +321,13 @@ li {
   font-size: clamp(14px, 2vw, 20px);
   background-color: rgba(0, 0, 0, 0.464);
   backdrop-filter: blur(8px);
+  /* color: white; */
+}
+
+.carousel-nav > span {
   color: white;
 }
+
 .carousel-translate {
   display: flex;
   height: min(50vh, var(--max-image-height));
@@ -391,6 +396,18 @@ li {
   color: white;
   padding: 4px 10px;
 }
+
+.comment-back {
+  width: 50px;
+  height: 50px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  left: -90px;
+  top: 30px;
+  animation: backdrop-fade 800ms forwards;
+}
+
 .comments {
   /* margin-inline: 10px; */
   width: 96%;
@@ -557,5 +574,13 @@ li {
   }
   .card {
     padding: 10px;
+  }
+  .comment-back {
+    width: 30px;
+    height: 30px;
+    padding: 4px;
+    position: relative;
+    left: 10px;
+    top: 4px;
   }
 }

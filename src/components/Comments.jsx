@@ -2,13 +2,35 @@ import React from "react";
 import Posts from "./Posts";
 import Comment from "./Comment";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import BackSvg from "../assets/BackSvg";
 
 function Comments() {
   const [data, SetData] = useState([]);
+  const navigate = useNavigate();
+
   console.log(data);
   return (
     <>
-      <Posts setCommentsData={SetData} />
+      <div>
+        {data.length > 0 && (
+          <div
+            style={{
+              maxWidth: "var(--max-card-width)",
+              margin: "auto",
+              position: "relative",
+            }}
+          >
+            <div
+              className="label clickable comment-back"
+              onClick={() => navigate(-1)}
+            >
+              <BackSvg />
+            </div>
+          </div>
+        )}
+        <Posts setCommentsData={SetData} />
+      </div>
       <div className="comments">
         {data.length
           ? data.map((item, index) => {

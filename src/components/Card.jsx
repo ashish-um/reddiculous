@@ -76,14 +76,14 @@ function Card({ children, data, crosspost }) {
           )}
           <span style={{ opacity: ".6" }}>• {handleDate(data.created)}</span>
         </div>
-        <div>
+        <Link to={data.permalink}>
           <h2
             className="card-title"
             dangerouslySetInnerHTML={{
               __html: `${data.title}`,
             }}
           ></h2>
-        </div>
+        </Link>
       </div>
       {children}
       <div className="card-footer">
