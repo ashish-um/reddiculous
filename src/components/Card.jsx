@@ -8,7 +8,7 @@ import { useParams } from "react-router-dom";
 function Card({ children, data, crosspost }) {
   const [shared, SetShared] = useState(false);
   const { sub, user, post, id } = useParams();
-  const [localDataLoaded, SetLocalDataLoaded] = useState(false);
+  const [localDataLoaded, SetLocalDataLoaded] = useState(0);
 
   function handleDate(l_date) {
     const m_date = new Date(l_date * 1000);
@@ -34,14 +34,15 @@ function Card({ children, data, crosspost }) {
     if (post && id) {
       SetLocalDataLoaded(true);
     } else {
-      setTimeout(() => SetLocalDataLoaded(true), 340);
+      setTimeout(() => SetLocalDataLoaded(1), 340);
+      setTimeout(() => SetLocalDataLoaded(2), 1240);
     }
   }, []);
 
   return (
     <div
-      className={`card ${localDataLoaded && "animate-load"}`}
-      style={{ opacity: 0 }}
+      className={`card${localDataLoaded === 1 ? " animate-load" : ""}`}
+      style={{ opacity: localDataLoaded ? 1 : 0 }}
     >
       <div className="card-header">
         <div className="card-header-data">

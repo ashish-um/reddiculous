@@ -273,7 +273,7 @@ function Nav() {
                 style={{
                   position: "absolute",
                   inset: "0",
-                  background: "black",
+                  background: "var(--body-background)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-evenly",

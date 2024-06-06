@@ -320,6 +320,14 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                             )
                         : l_item.url
                     }
+                    src={
+                      l_item.post_hint == "image"
+                        ? l_item.preview.images[0].source.url.replaceAll(
+                            "amp;",
+                            ""
+                          )
+                        : l_item.url
+                    }
                   />
                 </Card>
               ) : l_item.domain.includes("imgur.com") ? ( // If Imgur

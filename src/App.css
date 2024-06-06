@@ -244,7 +244,7 @@ li {
   border-radius: var(--card-border-radius);
   font-size: large;
   background: var(--card-background);
-  /* opacity: 0; */
+  opacity: 0;
 }
 .card-title {
   font-size: clamp(19px, 2vw, 25px);
@@ -261,6 +261,50 @@ li {
   height: 100%;
   /* max-height: 400px; */
 }
+
+.img-src-holder {
+  position: fixed;
+  z-index: 3;
+  top: 34px;
+  left: 0;
+  width: 100vw;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* opacity: 0; */
+  animation: scalein 70ms;
+}
+
+@keyframes scalein {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.img-src-holder:hover {
+  cursor: zoom-out;
+}
+
+.img-src {
+  top: 0;
+  position: relative;
+  /* z-index: 30; */
+  width: 90%;
+  height: 90%;
+  background: var(--card-background);
+  border: 1px solid var(--text-color);
+}
+
+.img-container:hover {
+  cursor: zoom-in;
+
+  /* color: red; */
+}
+
 .img-container img {
   /* height: 100%; */
   max-height: var(--max-image-height);
@@ -331,7 +375,7 @@ li {
 .carousel-translate {
   display: flex;
   height: min(50vh, var(--max-image-height));
-  transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* transition: 300ms cubic-bezier(0.4, 0, 0.2, 1); */
 }
 .arrow {
   /* background: #524f7b70; */
@@ -406,6 +450,13 @@ li {
   left: -90px;
   top: 30px;
   animation: backdrop-fade 800ms forwards;
+}
+
+.comment-back-holder {
+  max-width: var(--max-card-width);
+  margin: auto;
+  position: relative;
+  z-index: 6;
 }
 
 .comments {
@@ -582,5 +633,12 @@ li {
     position: relative;
     left: 10px;
     top: 4px;
+  }
+  .comment-back-holder {
+    height: 35px;
+  }
+
+  .img-src-holder {
+    top: 20px;
   }
 }

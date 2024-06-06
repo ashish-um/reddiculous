@@ -14,18 +14,15 @@ function Comments() {
     <>
       <div>
         {data.length > 0 && (
-          <div
-            style={{
-              maxWidth: "var(--max-card-width)",
-              margin: "auto",
-              position: "relative",
-            }}
-          >
-            <div
-              className="label clickable comment-back"
-              onClick={() => navigate(-1)}
-            >
-              <BackSvg />
+          <div className="comment-back-holder">
+            <div style={{ position: "fixed" }}>
+              <div
+                className="label clickable comment-back"
+                style={{ boxShadow: "var(--body-background) 0 0 10px" }}
+                onClick={() => navigate(-1)}
+              >
+                <BackSvg />
+              </div>
             </div>
           </div>
         )}
