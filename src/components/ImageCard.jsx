@@ -1,20 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CloseSvg from "../assets/CloseSvg";
 
 function ImageCard(props) {
   // console.log(props.preview);
 
   const [zoom, SetZoom] = useState(false);
+  const [showZoom, SetShowZoom] = useState(false);
+
+  useEffect(() => {
+    if (zoom) {
+      SetShowZoom(true);
+    }
+    if (!zoom) {
+      setTimeout(() => {
+        SetShowZoom(false);
+      }, 200);
+    }
+  }, [zoom]);
 
   return (
     <>
-      {zoom && props.src && (
+      {showZoom && props.src && (
         <div
           onClick={() => {
             props.SetImageZoomed && props.SetImageZoomed(false);
             SetZoom(false);
           }}
-          className="img-src-holder"
+          className={`img-src-holder ${
+            zoom ? "animate-scalein" : "animate-scaleout"
+          }`}
         >
           <div className="img-src">
             <div
@@ -49,25 +63,44 @@ function ImageCard(props) {
           </div>
         </div>
       )}
-      <div
-        onClick={() => {
-          props.SetImageZoomed && props.SetImageZoomed(true);
-          SetZoom(true);
-        }}
-        className="img-container"
-      >
-        <img
-          loading="lazy"
-          width={"100%"}
-          height={"100%"}
-          style={{ objectFit: "contain" }}
-          src={props.preview}
-        />
+
+      {props.preview && (
         <div
-          className="img-bg"
-          style={{ backgroundImage: `url(${props.preview})` }}
+          onClick={() => {
+            props.SetImageZoomed && props.SetImageZoomed(true);
+            SetZoom(true);
+          }}
+          className="img-container"
+        >
+          <img
+            loading="lazy"
+            width={"100%"}
+            height={"100%"}
+            style={{ objectFit: "contain" }}
+            src={props.preview}
+          />
+          <div
+            className="img-bg"
+            style={{ backgroundImage: `url(${props.preview})` }}
+          ></div>
+        </div>
+      )}
+
+      {!props.preview && (
+        <div
+          onClick={() => {
+            props.SetImageZoomed && props.SetImageZoomed(true);
+            SetZoom(true);
+          }}
+          className="img-container"
+          style={{
+            position: "absolute",
+            inset: 0,
+            // background: "red",
+            zIndex: 3,
+          }}
         ></div>
-      </div>
+      )}
     </>
   );
 }

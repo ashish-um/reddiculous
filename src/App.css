@@ -264,7 +264,7 @@ li {
 
 .img-src-holder {
   position: fixed;
-  z-index: 3;
+  z-index: 6;
   top: 34px;
   left: 0;
   width: 100vw;
@@ -273,7 +273,14 @@ li {
   align-items: center;
   justify-content: center;
   /* opacity: 0; */
-  animation: scalein 70ms;
+}
+
+.animate-scalein {
+  animation: scalein 70ms forwards;
+}
+
+.animate-scaleout {
+  animation: scaleout 70ms forwards;
 }
 
 @keyframes scalein {
@@ -284,7 +291,16 @@ li {
     transform: scale(1);
   }
 }
-
+@keyframes scaleout {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
 .img-src-holder:hover {
   cursor: zoom-out;
 }

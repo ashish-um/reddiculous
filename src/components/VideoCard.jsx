@@ -1,27 +1,44 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ReactPlayer from "react-player/lazy";
-function VideoCard(props) {
-  // console.log(props.img);
 
-  // const []
+function VideoCard(props) {
   const [failsLoading, SetFailsLoading] = useState(false);
   const [play, SetPlay] = useState(false);
 
-  function decodeHtml(html) {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = html;
-    // txt.innerHTML = html.replace(`style="position:absolute;"`, "");
-    return txt.value;
-  }
-  // console.log("Image", props.img);
-  // console.log(props.aspect);
+  const videoRef = useRef(null);
+  useEffect(() => {
+    const videoElement = videoRef.current;
+
+    // Function to handle the intersection changes
+    const handleIntersection = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          SetPlay(true);
+        } else {
+          SetPlay(false);
+        }
+      });
+    };
+
+    // Create an IntersectionObserver instance
+    const observer = new IntersectionObserver(handleIntersection, {
+      threshold: 0.9, // Adjust this value to determine when the video is considered in view
+    });
+
+    // Observe the video element
+    observer.observe(videoElement);
+
+    // Cleanup the observer on component unmount
+    return () => {
+      observer.unobserve(videoElement);
+    };
+  }, []);
+
   return (
     <div onCompositionStart={(r) => console.log(r)} className="video-holder">
       <div
+        ref={videoRef}
         className="video-player"
-        onMouseEnter={(e) => SetPlay(true)}
-        onMouseLeave={(e) => SetPlay(false)}
-        // style={{ height: `${props.height ? props.height : "700px"}` }}
         style={{ aspectRatio: props?.aspect }}
       >
         <ReactPlayer
@@ -52,9 +69,6 @@ function VideoCard(props) {
             // console.log(`Could Not Play It, switching to fallback ${e}`);
             SetFailsLoading(true);
           }}
-
-          // style={{ width: "100px" }}
-          // width={300}
         />
       </div>
     </div>

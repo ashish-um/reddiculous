@@ -107,14 +107,14 @@
 
 .settings {
   position: fixed;
-  width: 90%;
+  width: 85%;
   background: var(--card-background);
   border-radius: var(--card-border-radius);
   height: 80%;
   z-index: 3;
   left: 50%;
   top: 50%;
-  padding: 10px 12px;
+  padding: 16px 22px;
   transform: translate(-50%, -50%);
   /* box-shadow: black 0px 0px 10px 10px; */
   /* overflow-y: scroll; */

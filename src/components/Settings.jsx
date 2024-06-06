@@ -28,6 +28,8 @@ function Settings() {
   const colors = ["#7a61c1", "#008170", "#1F6E8C", "#872341"];
   const [themeColor, SetThemeColor] = useState(null);
   const isInitialMount = useRef(true);
+  const childHeadingfontClamp = "clamp(18px, 2vw, 22px)";
+  const headingfontClamp = "clamp(20px, 2vw, 24px)";
 
   const loadTheme = (theme) => {
     localStorage.setItem("theme", JSON.stringify(theme));
@@ -60,6 +62,39 @@ function Settings() {
     document.documentElement.style.setProperty("--text-color", theme.text);
   };
 
+  function ToggleElement({ children }) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          // marginInline: "10px",
+        }}
+      >
+        <h2 style={{ fontSize: childHeadingfontClamp }}>{children}</h2>
+        <Toggle />
+      </div>
+    );
+  }
+
+  function HeadingElement({ children }) {
+    return (
+      <div
+        style={{
+          background: "var(--card-element)",
+          padding: "4px 20px",
+          borderRadius: "var(--card-border-radius)",
+          marginBlock: "15px",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <h2 style={{ fontSize: headingfontClamp }}>{children}</h2>
+      </div>
+    );
+  }
+
   useEffect(() => {
     if (localStorage.getItem("theme")) {
       let themeType = JSON.parse(
@@ -78,11 +113,6 @@ function Settings() {
   }, []);
 
   useEffect(() => {
-    // if (isInitialMount.current) {
-    //   isInitialMount.current = false;
-
-    //   return;
-    // }
     console.log(`Active: ${themeActive}, Color: ${themeColor}`);
 
     if (themeActive == "Light") {
@@ -107,20 +137,18 @@ function Settings() {
 
   return (
     <>
-      <h1 style={{ marginBottom: "10px" }}>Settings</h1>
-      {/* <br /> */}
-      <hr />
-      <br />
+      <HeadingElement>Change Theme</HeadingElement>
       <div
         style={{
           display: "flex",
           // justifyContent: "",
           gap: "20px",
+          justifyContent: "space-between",
           flexWrap: "wrap",
           alignItems: "center",
         }}
       >
-        <h2 style={{ fontSize: "clamp(18px, 2vw, 24px)" }}>Theme</h2>
+        <h2 style={{ fontSize: childHeadingfontClamp }}>Theme</h2>
         <Radio setItem={SetThemeActive} active={themeActive}>
           <div>
             <div
@@ -147,39 +175,27 @@ function Settings() {
             Black
           </div>
         </Radio>
-        {/* <Radio active="Primary">
-          <div key={1}>
-            <div
-              style={{ width: "20px", height: "20px", background: "red" }}
-            ></div>
-          </div>
-          <div key={2}>Secondary</div>
-          <div key={3}>Success</div>
-          <div key={4}>Red</div>
-        </Radio> */}
-        {/* <DropdownV2 parent={true} current_active="System">
-          <div className="element">System</div>
-          <div className="element">Dark</div>
-          <div className="element">Light</div>
-        </DropdownV2> */}
       </div>
-      {/* <br /> */}
-      {/* <hr /> */}
       <div
         style={{
           display: "flex",
           marginBlock: "10px",
           gap: "20px",
+          justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <h4>color picker:</h4>
+        <h2 style={{ fontSize: childHeadingfontClamp }}>Varient</h2>
         <ColorPicker
           colors={colors}
           setItem={SetThemeColor}
           active={themeColor}
         />
       </div>
+      <br />
+      <hr style={{ opacity: ".3", width: "90%", margin: "auto" }} />
+      <HeadingElement>Video Settings</HeadingElement>
+      <ToggleElement>Mute Video</ToggleElement>
     </>
   );
 }
