@@ -4,11 +4,14 @@ import { RWebShare } from "react-web-share";
 import { BrowserView, MobileView } from "react-device-detect";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import UpvoteSvg from "../assets/UpvoteSvg";
 
 function Card({ children, data, crosspost }) {
   const [shared, SetShared] = useState(false);
   const { sub, user, post, id } = useParams();
   const [localDataLoaded, SetLocalDataLoaded] = useState(0);
+  const [upvoted, SetUpvoted] = useState(false);
+  const [downvoted, SetDownvoted] = useState(false);
 
   function handleDate(l_date) {
     const m_date = new Date(l_date * 1000);
@@ -27,6 +30,16 @@ function Card({ children, data, crosspost }) {
       return dateDiff == 1 ? `1 day` : `${dateDiff} days`;
     } else {
       return hourDiff == 0 ? "now" : hourDiff == 1 ? `1 h` : `${hourDiff} h`;
+    }
+  }
+
+  function SetMembers(members) {
+    if (members > 999999) {
+      return `${(members / 1000000).toFixed(1)}M`;
+    } else if (members > 999) {
+      return `${(members / 1000).toFixed(0)}K`;
+    } else {
+      return members;
     }
   }
 
@@ -96,17 +109,52 @@ function Card({ children, data, crosspost }) {
         </Link>
 
         <span className="label">
-          <i
-            className="bx bxs-upvote"
-            style={{ transform: "translateY(-2px)" }}
-          ></i>{" "}
-          {data.ups}
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              SetUpvoted((vote) => !vote);
+              SetDownvoted(false);
+            }}
+            style={{
+              display: "flex",
+              borderRadius: "100vw",
+              paddingRight: "8px",
+            }}
+          >
+            <div
+              className={`wh30 ${upvoted ? "upvoted" : ""}`}
+              style={{ transform: "translateY(-2px)" }}
+            >
+              <UpvoteSvg />
+            </div>
+
+            <p>{SetMembers(data.ups + upvoted)}</p>
+          </div>
           <span className="separator"></span>
-          <i
-            className="bx bxs-downvote"
-            style={{ transform: "translateY(-1px)" }}
-          ></i>{" "}
-          {Math.round(data.ups / data.upvote_ratio - data.ups)}
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              SetDownvoted((vote) => !vote);
+              SetUpvoted(false);
+            }}
+            style={{
+              display: "flex",
+              borderRadius: "100vw",
+              paddingRight: "8px",
+            }}
+          >
+            <div
+              className={`wh30 ${downvoted ? "downvoted" : ""}`}
+              style={{ transform: "scale(-1) translateY(-1px)" }}
+            >
+              <UpvoteSvg />
+            </div>
+            <p>
+              {SetMembers(
+                Math.round(data.ups / data.upvote_ratio - data.ups) - downvoted
+              )}
+            </p>
+          </div>
         </span>
         <BrowserView
           style={{

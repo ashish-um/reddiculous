@@ -60,6 +60,8 @@ function Settings() {
       theme.secondaryColor
     );
     document.documentElement.style.setProperty("--text-color", theme.text);
+    document.documentElement.style.setProperty("--nsfw", theme.nsfw);
+    document.documentElement.style.setProperty("--crosspost", theme.crosspost);
   };
 
   function ToggleElement({ children }) {

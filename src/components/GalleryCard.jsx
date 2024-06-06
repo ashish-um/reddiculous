@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ImageCard from "./ImageCard";
+import ArrowRightSvg from "../assets/ArrowRightSvg";
 
 function GalleryCard(props) {
   const [currIndex, SetCurrIndex] = useState(0);
@@ -8,23 +9,6 @@ function GalleryCard(props) {
   const transitionStyle = "300ms cubic-bezier(0.4, 0, 0.2, 1)";
   const [transitionState, SetTransition] = useState(true);
   const [tranlateState, SetTranslateState] = useState(false);
-
-  useEffect(() => {
-    console.log(props.data[props.items[currIndex].media_id].s.u);
-
-    if (imageZoomed) {
-      // SetTransition(false);
-      // setTimeout(() => {
-      //   SetTranslateState(true);
-      // }, 0);
-    }
-    if (!imageZoomed) {
-      // SetTranslateState(false);
-      // setTimeout(() => {
-      //   SetTransition(true);
-      // }, 0);
-    }
-  }, [currIndex]);
 
   return (
     <div
@@ -64,7 +48,9 @@ function GalleryCard(props) {
           (currIndex == props.items.length - 1 && SetCurrIndex(0))
         }
       >
-        &#10140;
+        <div style={{ width: "40px", height: "40px" }}>
+          <ArrowRightSvg />
+        </div>
       </button>
       <button
         className="arrow left-arrow"
@@ -73,7 +59,9 @@ function GalleryCard(props) {
           (currIndex == 0 && SetCurrIndex(props.items.length - 1))
         }
       >
-        &#10140;
+        <div style={{ width: "40px", height: "40px" }}>
+          <ArrowRightSvg />
+        </div>
       </button>
       <div
         className="carousel-translate"

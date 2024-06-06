@@ -70,7 +70,7 @@ function ImageCard(props) {
             props.SetImageZoomed && props.SetImageZoomed(true);
             SetZoom(true);
           }}
-          className="img-container"
+          className={`img-container ${props.src ? "cursor-zoom-in" : ""}`}
         >
           <img
             loading="lazy"
@@ -92,7 +92,7 @@ function ImageCard(props) {
             props.SetImageZoomed && props.SetImageZoomed(true);
             SetZoom(true);
           }}
-          className="img-container"
+          className={`img-container ${props.src ? "cursor-zoom-in" : ""}`}
           style={{
             position: "absolute",
             inset: 0,

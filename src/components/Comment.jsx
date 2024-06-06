@@ -1,12 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import UpvoteSvg from "../assets/UpvoteSvg";
 
 function Comment({ data, className, color, first }) {
   const Threadcolor = useRef(Math.random() * 360);
   const [hide, SetHide] = useState(0);
   const [loaded, SetLoaded] = useState(false);
   const [childrenDisplay, SetChildrenDisplay] = useState(true);
+  const [upvoted, SetUpvoted] = useState(false);
 
   useEffect(() => {
     if (data?.depth > 1) {
@@ -69,6 +71,16 @@ function Comment({ data, className, color, first }) {
     }
   }
 
+  function SetMembers(members) {
+    if (members > 999999) {
+      return `${(members / 1000000).toFixed(1)}M`;
+    } else if (members > 999) {
+      return `${(members / 1000).toFixed(0)}K`;
+    } else {
+      return members;
+    }
+  }
+
   return (
     <>
       <div
@@ -117,18 +129,43 @@ function Comment({ data, className, color, first }) {
           <Link to={"/u/" + data.author} className="label">
             u/{data.author}
           </Link>
-          <span className="label">
-            {data.ups}
+          <span
+            className="label clickable"
+            onClick={() => {
+              SetUpvoted((vote) => !vote);
+            }}
+          >
+            {SetMembers(data.ups + (data.ups > 0 ? 1 * upvoted : -1 * upvoted))}
             {data.ups > 0 ? (
-              <i
-                className="bx bxs-upvote"
-                style={{ transform: "translateY(-2px)" }}
-              ></i>
+              <div
+                className={`${upvoted ? "upvoted" : ""}`}
+                style={{
+                  transform: "translateY(-2px)",
+                  width: "26px",
+                  height: "26px",
+                }}
+              >
+                <UpvoteSvg />
+              </div>
             ) : (
-              <i
-                className="bx bxs-downvote"
-                style={{ transform: "translateY(-1px)" }}
-              ></i>
+              // <i
+              //   className="bx bxs-upvote"
+              //   style={{ transform: "translateY(-2px)" }}
+              // ></i>
+              <div
+                className={`${upvoted ? "downvoted" : ""}`}
+                style={{
+                  transform: "translateY(-1px) scale(-1)",
+                  width: "26px",
+                  height: "26px",
+                }}
+              >
+                <UpvoteSvg />
+              </div>
+              // <i
+              //   className="bx bxs-downvote"
+              //   style={{ transform: "translateY(-1px)" }}
+              // ></i>
             )}
           </span>
 

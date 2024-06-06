@@ -15,6 +15,7 @@ function Subreddit() {
   const [data, SetData] = useState({});
   const [error, SetError] = useState("");
   const [searchParams, SetSearchParams] = useSearchParams({ sort: "", t: "" });
+  const [bannerFound, SetBannerFound] = useState(0);
   const [sortActive, SetSortActive] = useState(
     sort
       ? searchParams.get("t")
@@ -112,11 +113,19 @@ function Subreddit() {
         //   )[0].data
         //   // response.data.data.children
         // );
-        SetData(
-          response.data.data.children.filter(
-            (item) => item.data.display_name_prefixed == "r/" + sub
-          )[0].data
+
+        const filterdSub = response.data.data.children.filter(
+          (item) => item.data.display_name_prefixed == "r/" + sub
         );
+
+        console.log("Banner", filterdSub);
+
+        if (filterdSub.length) {
+          SetBannerFound(1);
+        } else {
+          SetBannerFound(2);
+        }
+        SetData(filterdSub[0].data);
       })
       .catch((reject) => {
         SetError(reject.message);
@@ -133,9 +142,14 @@ function Subreddit() {
       return `${members}`;
     }
   }
+
+  if (bannerFound === 2) {
+    return <Posts />;
+  }
+
   return (
     <>
-      {Object.keys(data).length !== 0 ? (
+      {bannerFound === 1 ? (
         <div
           className={
             !sessionStorage.getItem(`del_sub${sub}`) && `show-dropdown`

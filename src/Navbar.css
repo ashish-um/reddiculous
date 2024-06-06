@@ -111,7 +111,7 @@
   background: var(--card-background);
   border-radius: var(--card-border-radius);
   height: 80%;
-  z-index: 3;
+  z-index: 10;
   left: 50%;
   top: 50%;
   padding: 16px 22px;
@@ -123,11 +123,19 @@
   animation: settings-fader 200ms forwards;
 }
 
+.settings-icon svg {
+  transition: transform 100ms;
+}
+
+.settings-icon:active svg {
+  transform: rotate(45deg);
+}
+
 .settings-backdrop {
   position: fixed;
   background: rgba(0, 0, 0, 0.605);
   inset: 0;
-  z-index: 2;
+  z-index: 9;
   animation: backdrop-fade 200ms forwards;
 }
 

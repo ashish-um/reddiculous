@@ -72,6 +72,8 @@ function Nav() {
       theme.secondaryColor
     );
     document.documentElement.style.setProperty("--text-color", theme.text);
+    document.documentElement.style.setProperty("--nsfw", theme.nsfw);
+    document.documentElement.style.setProperty("--crosspost", theme.crosspost);
   };
 
   useEffect(() => {
@@ -210,7 +212,7 @@ function Nav() {
               onClick={() => {
                 SetShowSettings((val) => !val);
               }}
-              className="label noselect clickable"
+              className="label noselect clickable settings-icon"
             >
               <div style={{ width: "30px", height: "30px" }}>
                 <SettingsSvg />
@@ -257,6 +259,7 @@ function Nav() {
                 <SearchSvg />
               </div>
               <div
+                className="settings-icon"
                 onClick={() => {
                   SetShowSettings((val) => !val);
                   document.body.style.overflow = !showSettings
