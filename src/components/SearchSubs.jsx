@@ -32,7 +32,8 @@ function SearchSubs({ setPostLoad }) {
       params: {
         q: searchParam.get("q"),
         type: "sr",
-        // include_over_18: "on",
+        include_over_18:
+          localStorage.getItem("show_nsfw") === "true" ? "on" : "",
         after: after,
       },
     };

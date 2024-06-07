@@ -120,7 +120,13 @@
   /* overflow-y: scroll; */
   max-width: var(--max-card-width);
   opacity: 0;
-  animation: settings-fader 200ms forwards;
+  transition: all 200ms;
+  top: 52%;
+}
+
+.show-settings {
+  opacity: 1;
+  top: 50%;
 }
 
 .settings-icon svg {
@@ -136,7 +142,42 @@
   background: rgba(0, 0, 0, 0.605);
   inset: 0;
   z-index: 9;
-  animation: backdrop-fade 200ms forwards;
+  opacity: 0;
+  transition: 200ms;
+  /* animation: backdrop-fade 200ms forwards; */
+}
+
+.show-backdrop {
+  opacity: 1;
+}
+
+.sidebar-holder {
+  position: fixed;
+  height: 100vh;
+  background-color: var(--card-background);
+  left: 0;
+  width: 240px;
+  z-index: 8;
+  box-shadow: var(--body-background) 0 0 10px;
+  padding: 10px;
+  transition: left 80ms;
+  overflow-y: scroll;
+}
+
+.sidebar-show {
+  left: 0;
+}
+
+.sidebar-hide {
+  left: -260px;
+}
+
+.menu-btn:hover {
+  transform: scaleY(1.1);
+}
+
+.menu-btn:active {
+  transform: skewX(10deg) scaleY(1.1);
 }
 
 @keyframes backdrop-fade {
@@ -145,18 +186,6 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes settings-fader {
-  from {
-    opacity: 0;
-    top: 52%;
-    /* transform: translateY; */
-  }
-  to {
-    opacity: 1;
-    top: 50%;
   }
 }
 

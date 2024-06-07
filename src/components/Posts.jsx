@@ -156,7 +156,8 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
         params: {
           after: m_after,
           q: searchParam.get("q"),
-          // include_over_18: "on",
+          include_over_18:
+            localStorage.getItem("show_nsfw") === "true" ? "on" : "",
           sort: searchParam.get("sort"),
           t: searchParam.get("t"),
         },
@@ -178,16 +179,28 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
             setCommentsData(response.data[1].data.children);
           } else {
             console.log(response.data.data.children);
+
             if (!response.data.data.after) {
               window.removeEventListener("scroll", handleScroll);
             }
-            setData((data) => [...data, ...response.data.data.children]);
+
+            let combinedData = [];
+            if (localStorage.getItem("show_nsfw") !== "true") {
+              let noNsfwData = response.data.data.children.filter(
+                (item) => !item.data.over_18
+              );
+              combinedData = [...data, ...noNsfwData];
+            } else {
+              combinedData = [...data, ...response.data.data.children];
+            }
+
+            setData(combinedData);
             setAfter(response.data.data.after);
 
             if (cacheIt.current) {
               sessionStorage.setItem(
                 storeData.current,
-                JSON.stringify([...data, ...response.data.data.children])
+                JSON.stringify(combinedData)
               );
               sessionStorage.setItem(
                 storeAfter.current,

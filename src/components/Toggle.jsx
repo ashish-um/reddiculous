@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 
-function Toggle() {
-  const [toggleOn, SetToggleOn] = useState(false);
+function Toggle({ setToggle, toggle_default }) {
+  const [toggleOn, SetToggleOn] = useState(toggle_default);
+
+  // useEffect(() => {
+  //   SetToggleOn(toggle_default);
+  //   // setToggle(toggle_default);
+  // }, []);
 
   function ToggleOff() {
     return (
@@ -37,7 +42,11 @@ function Toggle() {
   return (
     <div
       style={{ width: "40px", height: "40px" }}
-      onClick={() => SetToggleOn((toggle) => !toggle)}
+      onClick={() => {
+        let toggle = toggleOn;
+        SetToggleOn(!toggle);
+        setToggle && setToggle(!toggle);
+      }}
     >
       {toggleOn ? <ToggleOn /> : <ToggleOff />}
     </div>

@@ -138,11 +138,9 @@ function Comment({ data, className, color, first }) {
             {SetMembers(data.ups + (data.ups > 0 ? 1 * upvoted : -1 * upvoted))}
             {data.ups > 0 ? (
               <div
-                className={`${upvoted ? "upvoted" : ""}`}
+                className={`comment-upvote-icon ${upvoted ? "upvoted" : ""}`}
                 style={{
                   transform: "translateY(-2px)",
-                  width: "26px",
-                  height: "26px",
                 }}
               >
                 <UpvoteSvg />

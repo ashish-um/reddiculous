@@ -26,7 +26,9 @@ function VideoCard(props) {
     });
 
     // Observe the video element
+    // if (localStorage.getItem("video_autoplay") === "true") {
     observer.observe(videoElement);
+    // }
 
     // Cleanup the observer on component unmount
     return () => {
@@ -43,7 +45,7 @@ function VideoCard(props) {
       >
         <ReactPlayer
           light={
-            props.img ? (
+            localStorage.getItem("video_autoplay") !== "true" && props.img ? (
               <img
                 src={props.img}
                 style={{ maxHeight: "var(--max-video-height)" }}
@@ -52,9 +54,11 @@ function VideoCard(props) {
               false
             )
           }
-          muted={props.muted}
+          // light={!play}
+          muted={localStorage.getItem("video_mute") === "true" ? true : false}
           playing={play}
           playsinline={true}
+          loop={localStorage.getItem("video_loop") === "true" ? true : false}
           url={
             failsLoading
               ? props.fallback

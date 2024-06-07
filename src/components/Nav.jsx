@@ -7,22 +7,8 @@ import { BrowserView, MobileView } from "react-device-detect";
 import Settings from "./Settings";
 import SettingsSvg from "../assets/SettingsSvg";
 import SearchSvg from "../assets/SearchSvg";
-
-import {
-  DARK_PURPLE,
-  DARK_GREEN,
-  DARK_BLUE,
-  DARK_MULL,
-  LIGHT_PURPLE,
-  LIGHT_GREEN,
-  LIGHT_BLUE,
-  LIGHT_MULL,
-  BLACK_PURPLE,
-  BLACK_GREEN,
-  BLACK_BLUE,
-  BLACK_MULL,
-} from "../assets/themes/DefaultTheme";
 import MenuSvg from "../assets/MenuSvg";
+import SideBar from "./SideBar";
 
 // import "../assets/themes/DefaultTheme.jsx";
 function Nav() {
@@ -35,6 +21,7 @@ function Nav() {
   const matchSub = useMatch("/r/:sub/*");
   const matchUser = useMatch("/u/:user/");
   const [showSettings, SetShowSettings] = useState(false);
+  const [showSidebar, SetShowSidebar] = useState(false);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -136,6 +123,8 @@ function Nav() {
           <div className="header-content">
             <div style={{ display: "flex", alignItems: "center" }}>
               <div
+                className="menu-btn"
+                onClick={() => SetShowSidebar((val) => !val)}
                 style={{
                   width: "35px",
                   height: "35px",
@@ -225,6 +214,8 @@ function Nav() {
           <div className="header-content">
             <div style={{ display: "flex", alignItems: "center", flex: "1" }}>
               <div
+                onClick={() => SetShowSidebar((val) => !val)}
+                className="menu-btn"
                 style={{
                   width: "35px",
                   height: "35px",
@@ -262,9 +253,6 @@ function Nav() {
                 className="settings-icon"
                 onClick={() => {
                   SetShowSettings((val) => !val);
-                  document.body.style.overflow = !showSettings
-                    ? "hidden"
-                    : "visible";
                 }}
                 style={{ width: "28px", height: "28px" }}
               >
@@ -326,22 +314,30 @@ function Nav() {
         </MobileView>
       </div>
 
-      {showSettings && (
+      {/* {showSettings && ( */}
+      <div>
         <div>
-          <div>
-            <div className="settings">
-              <Settings />
-            </div>
+          <div className={`settings ${showSettings ? "show-settings" : ""}`}>
+            <Settings />
           </div>
-          <div
-            onClick={() => {
-              SetShowSettings(false);
-              document.body.style.overflow = "visible";
-            }}
-            className="settings-backdrop"
-          ></div>
         </div>
-      )}
+        <div
+          onClick={() => {
+            SetShowSettings(false);
+            // document.body.style.overflow = "visible";
+          }}
+          className={`settings-backdrop ${showSettings ? "show-backdrop" : ""}`}
+        ></div>
+      </div>
+      {/* )} */}
+
+      <div
+        className={`sidebar-holder ${
+          showSidebar ? "sidebar-show" : "sidebar-hide"
+        }`}
+      >
+        <SideBar />
+      </div>
     </>
   );
 }

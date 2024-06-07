@@ -31,6 +31,12 @@ function Settings() {
   const childHeadingfontClamp = "clamp(18px, 2vw, 22px)";
   const headingfontClamp = "clamp(20px, 2vw, 24px)";
 
+  function SetDefaultSettings() {
+    if (!localStorage.getItem("video_autoplay")) {
+      localStorage.setItem("video_autoplay", true);
+    }
+  }
+
   const loadTheme = (theme) => {
     localStorage.setItem("theme", JSON.stringify(theme));
 
@@ -64,7 +70,18 @@ function Settings() {
     document.documentElement.style.setProperty("--crosspost", theme.crosspost);
   };
 
-  function ToggleElement({ children }) {
+  function ToggleElement({ children, name, refresh = false }) {
+    const val = localStorage.getItem(name) === "true" ? true : false;
+
+    const [toggle, SetToggle] = useState(val);
+
+    useEffect(() => {
+      if (toggle != val) {
+        console.log(name, toggle);
+        localStorage.setItem(name, toggle);
+      }
+    }, [toggle]);
+
     return (
       <div
         style={{
@@ -74,8 +91,13 @@ function Settings() {
           // marginInline: "10px",
         }}
       >
-        <h2 style={{ fontSize: childHeadingfontClamp }}>{children}</h2>
-        <Toggle />
+        <div>
+          <h2 style={{ fontSize: childHeadingfontClamp }}>{children}</h2>
+          {refresh && toggle != val && (
+            <p style={{ color: "var(--success-color)" }}>requires refresh</p>
+          )}
+        </div>
+        <Toggle setToggle={SetToggle} toggle_default={val} />
       </div>
     );
   }
@@ -98,6 +120,8 @@ function Settings() {
   }
 
   useEffect(() => {
+    SetDefaultSettings();
+
     if (localStorage.getItem("theme")) {
       let themeType = JSON.parse(
         localStorage.getItem("theme")
@@ -115,8 +139,6 @@ function Settings() {
   }, []);
 
   useEffect(() => {
-    console.log(`Active: ${themeActive}, Color: ${themeColor}`);
-
     if (themeActive == "Light") {
       if (themeColor == colors[0]) loadTheme(LIGHT_PURPLE);
       if (themeColor == colors[1]) loadTheme(LIGHT_GREEN);
@@ -197,7 +219,21 @@ function Settings() {
       <br />
       <hr style={{ opacity: ".3", width: "90%", margin: "auto" }} />
       <HeadingElement>Video Settings</HeadingElement>
-      <ToggleElement>Mute Video</ToggleElement>
+      <ToggleElement refresh={true} name={"video_mute"}>
+        Mute Video
+      </ToggleElement>
+      <ToggleElement refresh={true} name={"video_autoplay"}>
+        Auto Play
+      </ToggleElement>
+      <ToggleElement refresh={true} name={"video_loop"}>
+        Loop Video
+      </ToggleElement>
+      <br />
+      <hr style={{ opacity: ".3", width: "90%", margin: "auto" }} />
+      <HeadingElement>Nsfw & Spoiler</HeadingElement>
+      <ToggleElement refresh={true} name={"show_nsfw"}>
+        Enable Nsfw
+      </ToggleElement>
     </>
   );
 }
