@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import Posts from "./Posts";
 import Comment from "./Comment";
 import { useState } from "react";
@@ -30,18 +30,17 @@ function Comments() {
       </div>
       <div className="comments">
         {data.length
-          ? data.map((item, index) => {
+          ? data.map((item) => {
               return (
-                <>
+                <Fragment key={item.data.id}>
                   {item.data.body && (
                     <Comment
                       // className="comment-parent"
                       first={true}
-                      key={item.data.id}
                       data={item.data}
                     />
                   )}
-                </>
+                </Fragment>
               );
             })
           : ""}

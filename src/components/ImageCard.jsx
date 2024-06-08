@@ -73,7 +73,7 @@ function ImageCard(props) {
           className={`img-container ${props.src ? "cursor-zoom-in" : ""}`}
         >
           <img
-            loading="lazy"
+            // loading="lazy"
             width={"100%"}
             height={"100%"}
             style={{ objectFit: "contain" }}

@@ -122,7 +122,7 @@ function Nav() {
         <BrowserView>
           <div className="header-content">
             <div style={{ display: "flex", alignItems: "center" }}>
-              <div
+              <button
                 className="menu-btn"
                 onClick={() => SetShowSidebar((val) => !val)}
                 style={{
@@ -130,10 +130,12 @@ function Nav() {
                   height: "35px",
                   opacity: ".8",
                   marginRight: "12px",
+                  background: "none",
+                  border: "none",
                 }}
               >
                 <MenuSvg />
-              </div>
+              </button>
               {/* <span
                 className="material-symbols-outlined"
                 style={{
@@ -144,7 +146,11 @@ function Nav() {
               >
                 menu
               </span> */}
-              <Link style={{ height: "clamp(20px, 2vw,30px)" }} to="/">
+              <Link
+                className="noselect"
+                style={{ height: "clamp(20px, 2vw,30px)" }}
+                to="/"
+              >
                 <img
                   src="/reddiculous/icon_small.png"
                   width={"100%"}
@@ -153,7 +159,7 @@ function Nav() {
                 />
               </Link>
 
-              <Link to="/" style={{ width: "400px" }}>
+              <Link className="noselect" to="/" style={{ width: "400px" }}>
                 <TitleHeading />
                 {/* <h1
                 style={{ padding: "10px", fontSize: "clamp(20px, 2vw,25px)" }}
@@ -224,7 +230,11 @@ function Nav() {
               >
                 <MenuSvg />
               </div>
-              <Link style={{ display: "flex", alignItems: "center" }} to="/">
+              <Link
+                className="noselect"
+                style={{ display: "flex", alignItems: "center" }}
+                to="/"
+              >
                 <img
                   src="/reddiculous/icon_small.png"
                   width={"25px"}
@@ -317,7 +327,11 @@ function Nav() {
       {/* {showSettings && ( */}
       <div>
         <div>
-          <div className={`settings ${showSettings ? "show-settings" : ""}`}>
+          <div
+            className={`settings ${
+              showSettings ? "show-settings" : "no-interact"
+            }`}
+          >
             <Settings />
           </div>
         </div>
@@ -326,7 +340,9 @@ function Nav() {
             SetShowSettings(false);
             // document.body.style.overflow = "visible";
           }}
-          className={`settings-backdrop ${showSettings ? "show-backdrop" : ""}`}
+          className={`settings-backdrop ${
+            showSettings ? "show-backdrop" : "no-interact"
+          }`}
         ></div>
       </div>
       {/* )} */}
@@ -338,6 +354,17 @@ function Nav() {
       >
         <SideBar />
       </div>
+      <MobileView>
+        <div
+          onClick={() => {
+            SetShowSidebar(false);
+            // document.body.style.overflow = "visible";
+          }}
+          className={`settings-backdrop ${
+            showSidebar ? "show-backdrop" : "no-interact"
+          }`}
+        ></div>
+      </MobileView>
     </>
   );
 }

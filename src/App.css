@@ -89,7 +89,7 @@ li {
   max-width: var(--max-card-width);
   margin: auto;
   width: -webkit-fill-available;
-  height: 100px;
+  height: 120px;
   position: relative;
 }
 .banner-subdata {
@@ -98,6 +98,8 @@ li {
   gap: 5px;
   flex-direction: column;
   justify-content: end;
+  margin-top: 30px;
+  flex: 1;
 }
 
 .banner-data {
@@ -106,6 +108,7 @@ li {
   top: -30px;
   margin-left: 10px;
   gap: 10px;
+  width: 100%;
 }
 .banner-data img {
   border-radius: 100vw;
@@ -683,9 +686,9 @@ li {
     /* opacity: 0; */
     display: none;
   }
-  .banner-data-holder {
+  /* .banner-data-holder {
     height: 120px;
-  }
+  } */
   .card {
     padding: 10px;
   }

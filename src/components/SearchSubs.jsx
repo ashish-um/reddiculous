@@ -1,4 +1,4 @@
-import { React, useState, useEffect, useRef } from "react";
+import { React, useState, useEffect, useRef, Fragment } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import SubCard from "./SubCard";
@@ -58,8 +58,12 @@ function SearchSubs({ setPostLoad }) {
         <div className="search-sub">
           {m_data.length && setPostLoad ? (
             <div>
-              {m_data.map((item, index) => {
-                return <SubCard key={index} data={item.data} />;
+              {m_data.map((item) => {
+                return (
+                  <Fragment key={item.data.id}>
+                    <SubCard showJoinBtn={true} data={item.data} />
+                  </Fragment>
+                );
               })}
               {!loading ? (
                 <div

@@ -127,7 +127,10 @@ function Comment({ data, className, color, first }) {
           style={{ fontSize: "clamp(12px, 2vw, 16px)", marginBottom: "5px" }}
         >
           <Link to={"/u/" + data.author} className="label">
-            u/{data.author}
+            u/{data.author}{" "}
+            <p style={{ color: "var(--primary-color)", fontWeight: "bolder" }}>
+              {data.is_submitter && "OP"}
+            </p>
           </Link>
           <span
             className="label clickable"

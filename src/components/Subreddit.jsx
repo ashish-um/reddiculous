@@ -9,6 +9,7 @@ import {
 import Dropdown from "./Dropdown";
 import { useNavigate } from "react-router-dom";
 import DropdownV2 from "./DropdownV2";
+import JoinSubBtn from "./JoinSubBtn";
 
 function Subreddit() {
   const { sub, sort } = useParams();
@@ -88,17 +89,17 @@ function Subreddit() {
   }, [topActive]);
 
   useEffect(() => {
-    if (sub) {
-      document.title = "r/" + sub;
-    }
+    // if (sub) {
+    //   document.title = "r/" + sub;
+    // }
     SetFirstLoad(true);
     var options = {
       method: "GET",
-      url: "https://old.reddit.com/r/indiasocial/search.json",
+      url: `https://www.reddit.com/r/${sub}/about.json`,
       params: {
-        type: "sr",
-        q: sub,
-        include_over_18: "on",
+        // type: "sr",
+        // q: sub,
+        // include_over_18: "on",
         // sort: "top",
         // t: "all",
       },
@@ -114,21 +115,21 @@ function Subreddit() {
         //   // response.data.data.children
         // );
 
-        const filterdSub = response.data.data.children.filter(
-          (item) => item.data.display_name_prefixed == "r/" + sub
-        );
+        // const filterdSub = response.data.data.children.filter(
+        //   (item) => item.data.display_name_prefixed == "r/" + sub
+        // );
 
-        console.log("Banner", filterdSub);
+        // console.log("Banner", filterdSub);
 
-        if (filterdSub.length) {
+        if (response.data.data) {
           SetBannerFound(1);
-        } else {
-          SetBannerFound(2);
         }
-        SetData(filterdSub[0].data);
+
+        SetData(response.data.data);
       })
       .catch((reject) => {
         SetError(reject.message);
+        SetBannerFound(2);
         SetData({});
       });
   }, [sub]);
@@ -152,7 +153,7 @@ function Subreddit() {
       {bannerFound === 1 ? (
         <div
           className={
-            !sessionStorage.getItem(`del_sub${sub}`) && `show-dropdown`
+            !sessionStorage.getItem(`del_sub${sub}`) ? `show-dropdown` : ""
           }
         >
           <div className="sub-banner">
@@ -179,6 +180,7 @@ function Subreddit() {
               <div className="banner-data">
                 <img
                   width={80}
+                  height={80}
                   style={{
                     background: data.primary_color || "var(--body-background)",
                   }}
@@ -194,12 +196,36 @@ function Subreddit() {
                       display: "flex",
                       alignItems: "center",
                       gap: "10px",
+                      justifyContent: "space-between",
                       // flexWrap: "wrap",
                     }}
                   >
-                    <h1 style={{ fontSize: "clamp(15px,2vw,25px)" }}>
-                      {data.display_name_prefixed}
-                    </h1>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                      }}
+                    >
+                      <h1 style={{ fontSize: "clamp(15px,2vw,25px)" }}>
+                        {data.display_name_prefixed}
+                      </h1>
+                    </div>
+                    <div
+                      style={{
+                        width: "50px",
+                      }}
+                    >
+                      <JoinSubBtn
+                        sub={data.display_name_prefixed}
+                        image={
+                          data.community_icon.replaceAll("amp;", "") ||
+                          data.icon_img ||
+                          "/reddiculous/icon_big.png"
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: "10px" }}>
                     <h4
                       style={{
                         color: "var(--primary-color)",
@@ -207,7 +233,16 @@ function Subreddit() {
                         // paddingTop: "5px",
                       }}
                     >
-                      • {SetMembers(data.subscribers)} users
+                      {SetMembers(data.subscribers)} users
+                    </h4>
+                    <h4
+                      style={{
+                        color: "var(--primary-color)",
+                        fontSize: "clamp(12px,2vw,15px)",
+                        // paddingTop: "5px",
+                      }}
+                    >
+                      • {SetMembers(data.accounts_active)} active
                     </h4>
                   </div>
                   <div style={{ height: "20px" }}>
@@ -255,13 +290,18 @@ function Subreddit() {
                   current_active={topActive}
                   L_Activate={SetTopActive}
                 >
-                  {topValues.map((item) => {
-                    return <div className="element">{item}</div>;
+                  {topValues.map((item, index) => {
+                    return (
+                      <div key={index} className="element">
+                        {item}
+                      </div>
+                    );
                   })}
                   {/* <div className="element"></div> */}
                 </DropdownV2>
               </DropdownV2>
             </div>
+
             {/* <Dropdown
               l_active={SetSortActive}
               current_active={sortActive}

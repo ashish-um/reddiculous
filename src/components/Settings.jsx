@@ -79,6 +79,9 @@ function Settings() {
       if (toggle != val) {
         console.log(name, toggle);
         localStorage.setItem(name, toggle);
+        if (name === "show_nsfw") {
+          sessionStorage.clear();
+        }
       }
     }, [toggle]);
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -19,7 +19,8 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const loading = useRef(false);
   const { sub, id, post, user, sort } = useParams();
-  const URL = useRef(`https://old.reddit.com/r/${sub ? sub : "all"}.json`);
+  // const URL = useRef(`https://old.reddit.com/r/${sub ? sub : "popular"}.json`);
+  const URL = useRef();
   const [searchParam, SetSearchParams] = useSearchParams({
     q: "",
     sort: "",
@@ -74,7 +75,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
       );
       URL.current = `https://old.reddit.com/r/${sub}/${sort}.json`;
     } else if (sub) {
-      URL.current = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
+      URL.current = `https://old.reddit.com/r/${sub}.json`;
       cacheIt.current = true;
       setLocalItems(
         `del_sub${sub}`,
@@ -99,6 +100,18 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
       //   }
       // }
     } else {
+      let joinedSubsCombined = "";
+
+      JSON.parse(localStorage.getItem("subscriptions"))?.forEach((element) => {
+        joinedSubsCombined += "+" + element.display_name_prefixed.slice(2);
+      });
+
+      console.log(joinedSubsCombined.slice(1) ? "YES" : "NO");
+      if (joinedSubsCombined) {
+        URL.current = `https://old.reddit.com/r/${joinedSubsCombined}.json`;
+      } else {
+        URL.current = `https://old.reddit.com/r/all.json`;
+      }
       for (var item in localItems) {
         if (item.startsWith("del_")) {
           sessionStorage.removeItem(item);
@@ -178,7 +191,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
             console.log("removed event listener");
             setCommentsData(response.data[1].data.children);
           } else {
-            console.log(response.data.data.children);
+            // console.log(response.data.data.children);
 
             if (!response.data.data.after) {
               window.removeEventListener("scroll", handleScroll);
@@ -308,228 +321,62 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
               crosspost = true;
             }
 
-            return l_item.author != "AutoModerator" ? (
-              l_item.removal_reason || l_item.removed_by_category ? (
-                "" // Check if not Automod
-              ) : l_item.crosspost_parent_list?.length ? (
-                // { l_item: l_item.crosspost_parent_list[0] }
-                ""
-              ) : ((l_item.is_reddit_media_domain && !l_item.is_video) ||
-                  l_item.post_hint == "image") && // check if image
-                !l_item.url.endsWith(".gif") ? ( // check if not gif
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  <ImageCard
-                    preview={
-                      l_item.post_hint == "image"
-                        ? l_item.preview.images[0].resolutions.filter(
-                            (item) => item.height > 300
-                          ).length > 0
-                          ? l_item.preview.images[0].resolutions
-                              .filter((item) => item.height > 300)[0]
-                              .url.replaceAll("amp;", "")
-                          : l_item.preview.images[0].source.url.replaceAll(
-                              "amp;",
-                              ""
-                            )
-                        : l_item.url
-                    }
-                    src={
-                      l_item.post_hint == "image"
-                        ? l_item.preview.images[0].source.url.replaceAll(
-                            "amp;",
-                            ""
-                          )
-                        : l_item.url
-                    }
-                  />
-                </Card>
-              ) : l_item.domain.includes("imgur.com") ? ( // If Imgur
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  {l_item.preview && (
-                    <ImageCard
-                      preview={
-                        l_item.preview.images[0].resolutions.length <= 4
-                          ? l_item.preview.images[0].source.url.replaceAll(
-                              "amp;",
-                              ""
-                            )
-                          : l_item.preview.images[0].resolutions[
-                              l_item.preview.images[0].resolutions.length - 2
-                            ].url.replaceAll("amp;", "")
-                      }
-                    />
-                  )}
-                </Card>
-              ) : l_item.post_hint == "link" ? (
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  <a
-                    href={l_item.url}
-                    target="_blank"
-                    style={{
-                      position: "relative",
-                    }}
-                  >
-                    <i className="bx bx-link-external redirect-link"></i>
-
-                    <div>
+            return (
+              <Fragment key={l_item.id}>
+                {l_item.author != "AutoModerator" ? (
+                  l_item.removal_reason || l_item.removed_by_category ? (
+                    "" // Check if not Automod
+                  ) : l_item.crosspost_parent_list?.length ? (
+                    // { l_item: l_item.crosspost_parent_list[0] }
+                    ""
+                  ) : ((l_item.is_reddit_media_domain && !l_item.is_video) ||
+                      l_item.post_hint == "image") && // check if image
+                    !l_item.url.endsWith(".gif") ? ( // check if not gif
+                    <Card crosspost={crosspost} key={index} data={l_item}>
                       <ImageCard
                         preview={
-                          l_item.preview.images[0].resolutions.length <= 4
+                          l_item.post_hint == "image"
+                            ? l_item.preview.images[0].resolutions.filter(
+                                (item) => item.height > 300
+                              ).length > 0
+                              ? l_item.preview.images[0].resolutions
+                                  .filter((item) => item.height > 300)[0]
+                                  .url.replaceAll("amp;", "")
+                              : l_item.preview.images[0].source.url.replaceAll(
+                                  "amp;",
+                                  ""
+                                )
+                            : l_item.url
+                        }
+                        src={
+                          l_item.post_hint == "image"
                             ? l_item.preview.images[0].source.url.replaceAll(
                                 "amp;",
                                 ""
                               )
-                            : l_item.preview.images[0].resolutions[
-                                l_item.preview.images[0].resolutions.length - 2
-                              ].url.replaceAll("amp;", "")
+                            : l_item.url
                         }
                       />
-                    </div>
-                  </a>
-                </Card>
-              ) : l_item.url.endsWith(".gif") ? ( // If Gif
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  <ImageCard preview={l_item.url} />
-                </Card>
-              ) : l_item.post_hint == "rich:video" &&
-                l_item.domain.includes("redgifs.com") ? (
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  <VideoCard
-                    muted={!hasUserInteracted}
-                    url={
-                      l_item.media.oembed.thumbnail_url.split("files/")[0] +
-                      "sd.m3u8"
-                    }
-                    img={
-                      l_item.preview.images[0].resolutions.filter(
-                        (item) => item.height > 300
-                      ).length > 0
-                        ? l_item.preview.images[0].resolutions
-                            .filter((item) => item.height > 300)[0]
-                            .url.replaceAll("amp;", "")
-                        : l_item.preview.images[0].source.url.replaceAll(
-                            "amp;",
-                            ""
-                          )
-                    }
-                    // url={l_item.preview.reddit_video_preview.hls_url}
-                    // fallback={l_item.media_embed.content}
-                    fallback={l_item.preview?.reddit_video_preview?.hls_url}
-                    fallbackEmbed={l_item.media_embed.content}
-                  />
-
-                  {/* <a href={l_item.url} target="_blank">
-                    {l_item.url}
-                  </a> */}
-                  {/* <VideoCard url="https://api.redgifs.com/v2/gifs/uniformexperttrout/sd.m3u8" /> */}
-                  {/* <div
-                    style={{
-                      height: "600px",
-                      width: "90%",
-                      position: "relative",
-                    }}
-                    dangerouslySetInnerHTML={{
-                      __html: decodeHtml(l_item.media_embed.content),
-                    }}
-                  ></div> */}
-                </Card>
-              ) : l_item.domain.includes("redgifs.com") ? (
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  {l_item.preview &&
-                  "reddit_video_preview" in l_item.preview ? (
-                    <>
-                      <VideoCard
-                        muted={!hasUserInteracted}
-                        url={l_item.preview.reddit_video_preview.hls_url}
-                        // url={l_item.preview.reddit_video_preview.hls_url}
-                        // fallback={l_item.media_embed.content}
-                        fallback={l_item.preview?.reddit_video_preview.hls_url}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <EmbedVideo
-                        url={l_item.media_embed.content}
-                        thumbnail={
-                          l_item.thumbnail?.includes("https")
-                            ? l_item.thumbnail
-                            : "https://external-preview.redd.it/GvDG58LivFnlxOq8XETKwi__STfuh3cKuy7C2ah2uDw.jpg?width=640&crop=smart&blur=40&format=pjpg&auto=webp&s=8acc582cbc8e2228edcb7d0412091ba1552879b5"
-                        }
-                      />
-                    </>
-                  )}
-                </Card>
-              ) : l_item.post_hint == "hosted:video" || l_item.is_video ? (
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  <VideoCard
-                    muted={!hasUserInteracted}
-                    url={l_item.media.reddit_video.dash_url.replaceAll(
-                      "&amp;",
-                      "&"
-                    )}
-                    // img={
-                    //   l_item.preview.images[0].resolutions.filter(
-                    //     (item) => item.height > 300
-                    //   ).length > 0
-                    //     ? l_item.preview.images[0].resolutions
-                    //         .filter((item) => item.height > 300)[0]
-                    //         .url.replaceAll("amp;", "")
-                    //     : l_item.preview.images[0].source.url.replaceAll(
-                    //         "amp;",
-                    //         ""
-                    //       )
-                    // }
-                    img={l_item.preview?.images[0].source.url.replaceAll(
-                      "amp;",
-                      ""
-                    )}
-                  />
-                  {/* <ImageCard preview={l_item.url} /> */}
-                </Card>
-              ) : l_item.post_hint == "rich:video" ||
-                l_item.domain.includes("youtube.com") ||
-                l_item.domain.includes("streamable.com") ? (
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  <VideoCard
-                    url={l_item.url}
-                    aspect={
-                      l_item.media_embed.width / l_item.media_embed.height
-                    }
-                  />
-                  {/* <ImageCard preview={l_item.url} /> */}
-                </Card>
-              ) : l_item.is_gallery ? (
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  <GalleryCard
-                    items={l_item.gallery_data.items}
-                    data={l_item.media_metadata}
-                  />
-                </Card>
-              ) : l_item.is_self ? (
-                <Card crosspost={crosspost} key={index} data={l_item}>
-                  {l_item.selftext_html && (
-                    <div
-                      style={{
-                        borderRadius: "8px",
-                        width: "98%",
-                        padding: "10px",
-                        background: "#00000033",
-                        overflow: "overlay",
-                      }}
-                      dangerouslySetInnerHTML={{
-                        __html: decodeHtml(
-                          l_item.selftext_html.length > 598 && !(post && id)
-                            ? l_item.selftext_html?.slice(0, 600) + "..."
-                            : l_item.selftext_html
-                        ),
-                      }}
-                    ></div>
-                  )}
-                </Card>
-              ) : (
-                // Cant Display
-                <>
-                  {l_item.url && (
+                    </Card>
+                  ) : l_item.domain.includes("imgur.com") ? ( // If Imgur
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      {l_item.preview && (
+                        <ImageCard
+                          preview={
+                            l_item.preview.images[0].resolutions.length <= 4
+                              ? l_item.preview.images[0].source.url.replaceAll(
+                                  "amp;",
+                                  ""
+                                )
+                              : l_item.preview.images[0].resolutions[
+                                  l_item.preview.images[0].resolutions.length -
+                                    2
+                                ].url.replaceAll("amp;", "")
+                          }
+                        />
+                      )}
+                    </Card>
+                  ) : l_item.post_hint == "link" ? (
                     <Card crosspost={crosspost} key={index} data={l_item}>
                       <a
                         href={l_item.url}
@@ -543,18 +390,192 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
                         <div>
                           <ImageCard
                             preview={
-                              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmVq-OmHL5H_5P8b1k306pFddOe3049-il2A&s" ||
-                              "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/681px-Placeholder_view_vector.svg.png?20220519031949"
+                              l_item.preview.images[0].resolutions.length <= 4
+                                ? l_item.preview.images[0].source.url.replaceAll(
+                                    "amp;",
+                                    ""
+                                  )
+                                : l_item.preview.images[0].resolutions[
+                                    l_item.preview.images[0].resolutions
+                                      .length - 2
+                                  ].url.replaceAll("amp;", "")
                             }
                           />
                         </div>
                       </a>
                     </Card>
-                  )}
-                </>
-              )
-            ) : (
-              "" // if auto mod: null
+                  ) : l_item.url.endsWith(".gif") ? ( // If Gif
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      <ImageCard preview={l_item.url} />
+                    </Card>
+                  ) : l_item.post_hint == "rich:video" &&
+                    l_item.domain.includes("redgifs.com") ? (
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      <VideoCard
+                        muted={!hasUserInteracted}
+                        url={
+                          l_item.media.oembed.thumbnail_url.split("files/")[0] +
+                          "sd.m3u8"
+                        }
+                        img={
+                          l_item.preview.images[0].resolutions.filter(
+                            (item) => item.height > 300
+                          ).length > 0
+                            ? l_item.preview.images[0].resolutions
+                                .filter((item) => item.height > 300)[0]
+                                .url.replaceAll("amp;", "")
+                            : l_item.preview.images[0].source.url.replaceAll(
+                                "amp;",
+                                ""
+                              )
+                        }
+                        // url={l_item.preview.reddit_video_preview.hls_url}
+                        // fallback={l_item.media_embed.content}
+                        fallback={l_item.preview?.reddit_video_preview?.hls_url}
+                        fallbackEmbed={l_item.media_embed.content}
+                      />
+
+                      {/* <a href={l_item.url} target="_blank">
+                    {l_item.url}
+                  </a> */}
+                      {/* <VideoCard url="https://api.redgifs.com/v2/gifs/uniformexperttrout/sd.m3u8" /> */}
+                      {/* <div
+                    style={{
+                      height: "600px",
+                      width: "90%",
+                      position: "relative",
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: decodeHtml(l_item.media_embed.content),
+                    }}
+                  ></div> */}
+                    </Card>
+                  ) : l_item.domain.includes("redgifs.com") ? (
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      {l_item.preview &&
+                      "reddit_video_preview" in l_item.preview ? (
+                        <>
+                          <VideoCard
+                            muted={!hasUserInteracted}
+                            url={l_item.preview.reddit_video_preview.hls_url}
+                            // url={l_item.preview.reddit_video_preview.hls_url}
+                            // fallback={l_item.media_embed.content}
+                            fallback={
+                              l_item.preview?.reddit_video_preview.hls_url
+                            }
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <EmbedVideo
+                            url={l_item.media_embed.content}
+                            thumbnail={
+                              l_item.thumbnail?.includes("https")
+                                ? l_item.thumbnail
+                                : "https://external-preview.redd.it/GvDG58LivFnlxOq8XETKwi__STfuh3cKuy7C2ah2uDw.jpg?width=640&crop=smart&blur=40&format=pjpg&auto=webp&s=8acc582cbc8e2228edcb7d0412091ba1552879b5"
+                            }
+                          />
+                        </>
+                      )}
+                    </Card>
+                  ) : l_item.post_hint == "hosted:video" || l_item.is_video ? (
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      <VideoCard
+                        muted={!hasUserInteracted}
+                        url={l_item.media.reddit_video.dash_url.replaceAll(
+                          "&amp;",
+                          "&"
+                        )}
+                        // img={
+                        //   l_item.preview.images[0].resolutions.filter(
+                        //     (item) => item.height > 300
+                        //   ).length > 0
+                        //     ? l_item.preview.images[0].resolutions
+                        //         .filter((item) => item.height > 300)[0]
+                        //         .url.replaceAll("amp;", "")
+                        //     : l_item.preview.images[0].source.url.replaceAll(
+                        //         "amp;",
+                        //         ""
+                        //       )
+                        // }
+                        img={l_item.preview?.images[0].source.url.replaceAll(
+                          "amp;",
+                          ""
+                        )}
+                      />
+                      {/* <ImageCard preview={l_item.url} /> */}
+                    </Card>
+                  ) : l_item.post_hint == "rich:video" ||
+                    l_item.domain.includes("youtube.com") ||
+                    l_item.domain.includes("streamable.com") ? (
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      <VideoCard
+                        url={l_item.url}
+                        aspect={
+                          l_item.media_embed.width / l_item.media_embed.height
+                        }
+                      />
+                      {/* <ImageCard preview={l_item.url} /> */}
+                    </Card>
+                  ) : l_item.is_gallery ? (
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      <GalleryCard
+                        items={l_item.gallery_data.items}
+                        data={l_item.media_metadata}
+                      />
+                    </Card>
+                  ) : l_item.is_self ? (
+                    <Card crosspost={crosspost} key={index} data={l_item}>
+                      {l_item.selftext_html && (
+                        <div
+                          style={{
+                            borderRadius: "8px",
+                            width: "98%",
+                            padding: "10px",
+                            background: "#00000033",
+                            overflow: "overlay",
+                          }}
+                          dangerouslySetInnerHTML={{
+                            __html: decodeHtml(
+                              l_item.selftext_html.length > 598 && !(post && id)
+                                ? l_item.selftext_html?.slice(0, 600) + "..."
+                                : l_item.selftext_html
+                            ),
+                          }}
+                        ></div>
+                      )}
+                    </Card>
+                  ) : (
+                    // Cant Display
+                    <>
+                      {l_item.url && (
+                        <Card crosspost={crosspost} key={index} data={l_item}>
+                          <a
+                            href={l_item.url}
+                            target="_blank"
+                            style={{
+                              position: "relative",
+                            }}
+                          >
+                            <i className="bx bx-link-external redirect-link"></i>
+
+                            <div>
+                              <ImageCard
+                                preview={
+                                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQmVq-OmHL5H_5P8b1k306pFddOe3049-il2A&s" ||
+                                  "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/681px-Placeholder_view_vector.svg.png?20220519031949"
+                                }
+                              />
+                            </div>
+                          </a>
+                        </Card>
+                      )}
+                    </>
+                  )
+                ) : (
+                  "" // if auto mod: null
+                )}
+              </Fragment>
             );
           })}
 

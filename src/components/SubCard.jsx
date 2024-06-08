@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import JoinSubBtn from "./JoinSubBtn";
 
-function SubCard({ data }) {
+function SubCard({ data, showJoinBtn = false }) {
   function SetMembers(members) {
     if (members > 999999) {
       return `${(members / 1000000).toFixed(1)}M`;
@@ -13,8 +14,8 @@ function SubCard({ data }) {
   }
 
   return (
-    <Link
-      to={data.url}
+    <div
+      // to={data.url}
       style={{
         background: `color-mix(in srgb, ${
           data.primary_color || "var(--card-background)"
@@ -22,30 +23,37 @@ function SubCard({ data }) {
       }}
       className="subcard  animate-load"
     >
-      <img
-        src={
-          data.icon_img ||
-          data.community_icon.replaceAll("amp;", "") ||
-          "/reddiculous/icon_big.png"
-        }
-        width={40}
-        height={40}
-        style={{ objectFit: "cover" }}
-      />
-      <div>
-        <h3 style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
-          {data.display_name_prefixed}
-          <Link // This gives errors cant use Link tag here
-            to="/"
-            className="label clickable"
-            style={{
-              fontSize: "13px",
-              padding: "2px 8px",
-              background: "var(--success-color)",
-            }}
+      <Link to={"/" + data.display_name_prefixed}>
+        <img
+          src={
+            data.icon_img ||
+            data.community_icon.replaceAll("amp;", "") ||
+            "/reddiculous/icon_big.png"
+          }
+          width={40}
+          height={40}
+          style={{ objectFit: "cover" }}
+        />
+      </Link>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Link
+            to={"/" + data.display_name_prefixed}
+            style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}
           >
-            join
+            {data.display_name_prefixed}
           </Link>
+          {showJoinBtn && (
+            <JoinSubBtn
+              sub={data.display_name_prefixed}
+              image={
+                data.icon_img ||
+                data.community_icon.replaceAll("amp;", "") ||
+                "/reddiculous/icon_big.png"
+              }
+            />
+          )}
+
           {data.over18 && (
             <span
               className="label"
@@ -58,13 +66,16 @@ function SubCard({ data }) {
               nsfw
             </span>
           )}
-        </h3>
-        {/* | Disc:{data.public_description}  */}
-        <div style={{ opacity: ".6" }}>
-          {SetMembers(data.subscribers)} members
         </div>
+
+        {/* | Disc:{data.public_description}  */}
+        {data.subscribers && (
+          <Link to={"/" + data.display_name_prefixed} style={{ opacity: ".6" }}>
+            {SetMembers(data.subscribers)} members
+          </Link>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
 
