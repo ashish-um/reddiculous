@@ -28,12 +28,12 @@ function VideoCard(props) {
     // Observe the video element
     if (localStorage.getItem("video_autoplay") === "true") {
       observer.observe(videoElement);
-    }
 
-    // Cleanup the observer on component unmount
-    return () => {
-      observer.unobserve(videoElement);
-    };
+      // Cleanup the observer on component unmount
+      return () => {
+        observer.unobserve(videoElement);
+      };
+    }
   }, []);
 
   return (

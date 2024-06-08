@@ -40,7 +40,7 @@ function JoinSubBtn({ sub, image }) {
       onClick={handleClick}
       className="label noselect clickable"
       style={{
-        background: joined ? "blue" : "green",
+        background: joined ? "var(--success-color)" : "",
         fontSize: "clamp(12px,2vw,15px)",
         padding: "0 8px",
       }}

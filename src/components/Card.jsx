@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { BrowserView, MobileView } from "react-device-detect";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import UpvoteSvg from "../assets/UpvoteSvg";
+import axios from "axios";
 
 function Card({ children, data, crosspost }) {
   const [shared, SetShared] = useState(false);
@@ -12,6 +13,14 @@ function Card({ children, data, crosspost }) {
   const [localDataLoaded, SetLocalDataLoaded] = useState(0);
   const [upvoted, SetUpvoted] = useState(false);
   const [downvoted, SetDownvoted] = useState(false);
+  const [subImage, SetSubImage] = useState("");
+
+  const testImageData = [
+    { sub: "r/all", img: "example.png" },
+    { sub: "r/all", img: "example.png" },
+    { sub: "r/all", img: "example.png" },
+    { sub: "r/all", img: "example.png" },
+  ];
 
   function handleDate(l_date) {
     const m_date = new Date(l_date * 1000);
@@ -43,6 +52,71 @@ function Card({ children, data, crosspost }) {
     }
   }
 
+  function getSubImage() {
+    const storedImages = JSON.parse(localStorage.getItem("sub_images")) || [];
+    const exists = storedImages.some(
+      (elem) => elem.sub === data.subreddit_name_prefixed
+    );
+
+    // [{sub:"r/all", img="https://www.example.png"}]
+    if (exists) {
+      SetSubImage(
+        storedImages.filter(
+          (elem) => elem.sub === data.subreddit_name_prefixed
+        )[0].img
+      );
+    } else {
+      axios
+        .get(`https://www.reddit.com/r/${data.subreddit}/about/.json`)
+        .then((response) => {
+          const image =
+            response.data.data.community_icon.replaceAll("amp;", "") ||
+            response.data.data.icon_img;
+          storedImages.push({ sub: data.subreddit_name_prefixed, img: image });
+          localStorage.setItem("sub_images", JSON.stringify(storedImages));
+          console.log(storedImages);
+          SetSubImage(image);
+        })
+        .catch((err) => {
+          SetSubImage("/reddiculous/icon_big.png");
+        });
+    }
+  }
+
+  const cardRef = useRef(null);
+  useEffect(() => {
+    const cardElement = cardRef.current;
+
+    // Function to handle the intersection changes
+    const handleIntersection = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          getSubImage();
+          // console.log("Intersecting", data);
+          // SetPlay(true); intersectings
+        } else {
+          // SetPlay(false);  not intersecting
+        }
+      });
+    };
+
+    // Create an IntersectionObserver instance
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: null,
+      rootMargin: "600px",
+    });
+
+    // Observe the video element
+    if (!sub) {
+      observer.observe(cardElement);
+      // localStorage.setItem("sub_images", JSON.stringify(testImageData));
+      // Cleanup the observer on component unmount
+      return () => {
+        observer.unobserve(cardElement);
+      };
+    }
+  }, []);
+
   useEffect(() => {
     if (post && id) {
       SetLocalDataLoaded(true);
@@ -61,10 +135,18 @@ function Card({ children, data, crosspost }) {
         <div className="card-header-data">
           {(!sub || sub == "popular" || sub == "all") && (
             <Link
+              ref={cardRef}
               className="label clickable"
               style={{ background: "var(--secondary-color)" }}
               to={"/" + data.subreddit_name_prefixed}
             >
+              <img
+                src={subImage}
+                alt=""
+                width={30}
+                height={30}
+                style={{ borderRadius: "100vw" }}
+              />
               {data.subreddit_name_prefixed}
             </Link>
           )}
