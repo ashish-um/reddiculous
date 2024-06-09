@@ -10,6 +10,50 @@ function GalleryCard(props) {
   const [transitionState, SetTransition] = useState(true);
   const [tranlateState, SetTranslateState] = useState(false);
 
+  useEffect(() => {
+    // console.log(props.data[props.items[currIndex].media_id]);
+  }, []);
+  // e
+  // :
+  // "AnimatedImage"
+  // id
+  // :
+  // "9wxpzeoacfgb1"
+  // m
+  // :
+  // "image/gif"
+
+  function handleImage(item) {
+    if (props.data[item.media_id].status == "valid") {
+      if (props.data[item.media_id].m.includes("gif")) {
+        return props.data[item.media_id].s.gif;
+      } else {
+        const filter = props.data[item.media_id].p.filter(
+          (element) => element.y > 400 || element.x > 400
+        );
+        if (filter.length > 0) {
+          return filter[0].u.replaceAll("amp;", "");
+        } else {
+          return props.data[item.media_id].s.u?.replaceAll("amp;", "");
+        }
+      }
+    } else {
+      return "https://hips.hearstapps.com/hmg-prod/images/legacy-fre-image-placeholder-1645192956.png?crop=1.00xw:1.00xh;0,0&resize=640:*";
+    }
+  }
+
+  function handleSourceImg(item) {
+    if (props.data[item.media_id].status == "valid") {
+      if (props.data[item.media_id].m.includes("gif")) {
+        return props.data[item.media_id].s.gif;
+      } else {
+        return props.data[item.media_id].s.u?.replaceAll("amp;", "");
+      }
+    } else {
+      return "https://hips.hearstapps.com/hmg-prod/images/legacy-fre-image-placeholder-1645192956.png?crop=1.00xw:1.00xh;0,0&resize=640:*";
+    }
+  }
+
   return (
     <div
       style={{
@@ -21,12 +65,13 @@ function GalleryCard(props) {
       <ImageCard
         SetImageZoomed={SetImageZoomed}
         src={
-          props.data[props.items[currIndex].media_id].status === "valid"
-            ? props.data[props.items[currIndex].media_id].s.u.replaceAll(
-                "amp;",
-                ""
-              )
-            : "https://hips.hearstapps.com/hmg-prod/images/legacy-fre-image-placeholder-1645192956.png?crop=1.00xw:1.00xh;0,0&resize=640:*"
+          handleSourceImg(props.items[currIndex])
+          // props.data[props.items[currIndex].media_id].status === "valid"
+          //   ? props.data[props.items[currIndex].media_id].s.u?.replaceAll(
+          //       "amp;",
+          //       ""
+          //     )
+          //   : "https://hips.hearstapps.com/hmg-prod/images/legacy-fre-image-placeholder-1645192956.png?crop=1.00xw:1.00xh;0,0&resize=640:*"
         }
       />
       <div className="carousel-nav">
@@ -78,18 +123,19 @@ function GalleryCard(props) {
               <ImageCard
                 SetImageZoomed={SetImageZoomed}
                 preview={
-                  props.data[item.media_id].status == "valid"
-                    ? (props.data[item.media_id].p &&
-                        props.data[item.media_id].p[
-                          props.data[item.media_id].p.length > 3
-                            ? 3
-                            : props.data[item.media_id].p.length - 1
-                        ]?.u.replaceAll("amp;", "")) ||
-                      (props.data[item.media_id].s.gif &&
-                        props.data[item.media_id].s.gif) ||
-                      (props.data[item.media_id].s.u &&
-                        props.data[item.media_id].s.u.replaceAll("amp;", ""))
-                    : "https://hips.hearstapps.com/hmg-prod/images/legacy-fre-image-placeholder-1645192956.png?crop=1.00xw:1.00xh;0,0&resize=640:*"
+                  handleImage(item)
+                  //   props.data[item.media_id].status == "valid"
+                  //     ? (props.data[item.media_id].p &&
+                  //         props.data[item.media_id].p[
+                  //           props.data[item.media_id].p.length > 3
+                  //             ? 3
+                  //             : props.data[item.media_id].p.length - 1
+                  //         ]?.u.replaceAll("amp;", "")) ||
+                  //       (props.data[item.media_id].s.gif &&
+                  //         props.data[item.media_id].s.gif) ||
+                  //       (props.data[item.media_id].s.u &&
+                  //         props.data[item.media_id].s.u.replaceAll("amp;", ""))
+                  //     : "https://hips.hearstapps.com/hmg-prod/images/legacy-fre-image-placeholder-1645192956.png?crop=1.00xw:1.00xh;0,0&resize=640:*"
                 }
                 // src={
                 //   props.data[item.media_id].status == "valid"

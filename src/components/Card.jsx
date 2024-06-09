@@ -15,13 +15,6 @@ function Card({ children, data, crosspost }) {
   const [downvoted, SetDownvoted] = useState(false);
   const [subImage, SetSubImage] = useState("");
 
-  const testImageData = [
-    { sub: "r/all", img: "example.png" },
-    { sub: "r/all", img: "example.png" },
-    { sub: "r/all", img: "example.png" },
-    { sub: "r/all", img: "example.png" },
-  ];
-
   function handleDate(l_date) {
     const m_date = new Date(l_date * 1000);
     const nowDate = new Date();
@@ -74,7 +67,7 @@ function Card({ children, data, crosspost }) {
             response.data.data.icon_img;
           storedImages.push({ sub: data.subreddit_name_prefixed, img: image });
           localStorage.setItem("sub_images", JSON.stringify(storedImages));
-          console.log(storedImages);
+          // console.log(storedImages);
           SetSubImage(image);
         })
         .catch((err) => {
@@ -127,6 +120,28 @@ function Card({ children, data, crosspost }) {
       )
     );
   }, []);
+
+  useEffect(() => {
+    if (upvoted) {
+      const storedLikedPosts =
+        JSON.parse(localStorage.getItem("liked_posts")) || [];
+      // storedLikedPosts.push({ data: data });
+      localStorage.setItem(
+        "liked_posts",
+        JSON.stringify([{ data: data }, ...storedLikedPosts])
+      );
+    } else {
+      const storedLikedPosts =
+        JSON.parse(localStorage.getItem("liked_posts")) || [];
+      // storedLikedPosts.push({ data: data });
+      localStorage.setItem(
+        "liked_posts",
+        JSON.stringify(
+          storedLikedPosts.filter((element) => element.data.id !== data.id)
+        )
+      );
+    }
+  }, [upvoted]);
 
   return (
     <div
@@ -197,13 +212,7 @@ function Card({ children, data, crosspost }) {
             className="cursor-pointer"
             onClick={() => {
               SetUpvoted((vote) => !vote);
-              const storedLikedPosts =
-                JSON.parse(localStorage.getItem("liked_posts")) || [];
-              // storedLikedPosts.push({ data: data });
-              localStorage.setItem(
-                "liked_posts",
-                JSON.stringify([{ data: data }, ...storedLikedPosts])
-              );
+
               SetDownvoted(false);
             }}
             style={{

@@ -120,7 +120,7 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
         joinedSubsCombined += "+" + element.display_name_prefixed.slice(2);
       });
 
-      console.log(joinedSubsCombined.slice(1) ? "YES" : "NO");
+      // console.log(joinedSubsCombined.slice(1) ? "YES" : "NO");
       if (joinedSubsCombined) {
         URL.current = `https://old.reddit.com/r/${joinedSubsCombined}.json`;
       } else {
@@ -146,7 +146,7 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
     window.addEventListener("click", handleInteraction);
 
     if (sessionStorage.getItem("isReloaded")) {
-      console.log("Page was reloaded");
+      // console.log("Page was reloaded");
       // sessionStorage.removeItem("isReloaded"); // Clean up
       sessionStorage.clear();
     } else {
@@ -160,7 +160,7 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
     };
   }, [sub, post, searchParam.get("q"), sort, searchParam.get("t"), liked]);
 
-  console.log("data", data);
+  // console.log("data", data);
 
   // ***********************************************************************************************************
   // ***********************************************************************************************************
@@ -207,7 +207,7 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
 
             window.removeEventListener("scroll", handleScroll);
 
-            console.log("removed event listener");
+            // console.log("removed event listener");
             setCommentsData(response.data[1].data.children);
           } else {
             // console.log(response.data.data.children);
@@ -227,6 +227,9 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
             }
 
             setData(combinedData);
+            // console.log(
+            //   combinedData.filter((elem) => elem.data.post_hint === "image")
+            // );
             console.log("combined Data", combinedData);
             setAfter(response.data.data.after);
 
@@ -261,7 +264,7 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
       setAfter(null);
       setData(JSON.parse(localStorage.getItem("liked_posts")));
     } else {
-      console.log("scolling should have been");
+      // console.log("scolling should have been");
       if (cacheIt.current) {
         setData(savedData);
         setAfter(savedPage);
@@ -331,6 +334,23 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
     return "";
   }
 
+  function handleImage(item) {
+    if (item.post_hint == "image") {
+      const filteredImage = item.preview.images[0].resolutions.filter(
+        (element) => element.height > 400 || element.width > 400
+      );
+      // console.log("filteredImages", filteredImage);
+      if (filteredImage.length > 0) {
+        return filteredImage[0].url.replaceAll("amp;", "");
+      } else {
+        return item.preview.images[0].source.url.replaceAll("amp;", "");
+      }
+    } else {
+      console.log("wierd", item);
+      return item.url;
+    }
+  }
+
   if (reqError) {
     return <h1>Error: {reqError}</h1>;
   }
@@ -361,20 +381,7 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
                     !l_item.url.endsWith(".gif") ? ( // check if not gif
                     <Card crosspost={crosspost} key={index} data={l_item}>
                       <ImageCard
-                        preview={
-                          l_item.post_hint == "image"
-                            ? l_item.preview.images[0].resolutions.filter(
-                                (item) => item.height > 300
-                              ).length > 0
-                              ? l_item.preview.images[0].resolutions
-                                  .filter((item) => item.height > 300)[0]
-                                  .url.replaceAll("amp;", "")
-                              : l_item.preview.images[0].source.url.replaceAll(
-                                  "amp;",
-                                  ""
-                                )
-                            : l_item.url
-                        }
+                        preview={handleImage(l_item)}
                         src={
                           l_item.post_hint == "image"
                             ? l_item.preview.images[0].source.url.replaceAll(

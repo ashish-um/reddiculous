@@ -197,7 +197,8 @@ function Subreddit() {
                       alignItems: "center",
                       gap: "10px",
                       justifyContent: "space-between",
-                      // flexWrap: "wrap",
+                      paddingRight: "20px",
+                      flexWrap: "wrap",
                     }}
                   >
                     <div
@@ -211,9 +212,11 @@ function Subreddit() {
                       </h1>
                     </div>
                     <div
-                      style={{
-                        width: "50px",
-                      }}
+                      style={
+                        {
+                          // width: "50px",
+                        }
+                      }
                     >
                       <JoinSubBtn
                         sub={data.display_name_prefixed}

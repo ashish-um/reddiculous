@@ -43,29 +43,30 @@ function SubCard({ data, showJoinBtn = false }) {
           >
             {data.display_name_prefixed}
           </Link>
-          {showJoinBtn && (
-            <JoinSubBtn
-              sub={data.display_name_prefixed}
-              image={
-                data.icon_img ||
-                data.community_icon.replaceAll("amp;", "") ||
-                "/reddiculous/icon_big.png"
-              }
-            />
-          )}
-
-          {data.over18 && (
-            <span
-              className="label"
-              style={{
-                background: "darkred",
-                fontSize: "13px",
-                padding: "2px 8px",
-              }}
-            >
-              nsfw
-            </span>
-          )}
+          <div style={{ display: "flex", gap: "5px" }}>
+            {data.over18 && (
+              <span
+                className="label"
+                style={{
+                  background: "darkred",
+                  fontSize: "13px",
+                  padding: "2px 8px",
+                }}
+              >
+                nsfw
+              </span>
+            )}
+            {showJoinBtn && (
+              <JoinSubBtn
+                sub={data.display_name_prefixed}
+                image={
+                  data.icon_img ||
+                  data.community_icon.replaceAll("amp;", "") ||
+                  "/reddiculous/icon_big.png"
+                }
+              />
+            )}
+          </div>
         </div>
 
         {/* | Disc:{data.public_description}  */}

@@ -14,16 +14,6 @@ function SideBar({ setShowSidebar }) {
         "https://t4.ftcdn.net/jpg/03/38/92/81/360_F_338928104_6b4Nhr5PxIIVc1RxB8zCP9YWw8kgqnEm.jpg",
       display_name_prefixed: "r/popular",
     },
-    {
-      icon_img:
-        "https://styles.redditmedia.com/t5_dyqlw/styles/communityIcon_hu6arwy1hrq01.png?width=256&s=e489776aba43d6375f0cae37c5d9cca4b821c3a9",
-      display_name_prefixed: "r/clevercomebacks",
-    },
-    {
-      icon_img:
-        "https://styles.redditmedia.com/t5_2uqcm/styles/communityIcon_kfqpkjbvpv001.png?width=256&s=3405a74675107554c9f9543c805d46c53fa12006",
-      display_name_prefixed: "r/MadeMeSmile",
-    },
   ];
 
   // useEffect(() => {

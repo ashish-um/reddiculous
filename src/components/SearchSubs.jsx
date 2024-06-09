@@ -50,7 +50,7 @@ function SearchSubs({ setPostLoad }) {
       });
   }, [loader]);
 
-  console.log(m_data);
+  // console.log(m_data);
 
   return (
     <>

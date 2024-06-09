@@ -108,7 +108,7 @@ li {
   top: -30px;
   margin-left: 10px;
   gap: 10px;
-  width: 100%;
+  width: -webkit-fill-available;
 }
 .banner-data img {
   border-radius: 100vw;
