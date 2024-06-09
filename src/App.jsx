@@ -19,6 +19,7 @@ function App() {
           <Route path="/r/:sub/comments/:id/:post/" element={<Comments />} />
           <Route path="/u/:user" element={<User />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/liked" element={<Posts liked={true} />} />
           <Route
             path="*"
             element={

@@ -352,7 +352,7 @@ function Nav() {
           showSidebar ? "sidebar-show" : "sidebar-hide"
         }`}
       >
-        <SideBar />
+        <SideBar setShowSidebar={SetShowSidebar} />
       </div>
       <MobileView>
         <div

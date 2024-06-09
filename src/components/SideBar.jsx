@@ -1,7 +1,8 @@
 import React, { Fragment, useEffect, useState } from "react";
 import SubCard from "./SubCard";
+import { Link } from "react-router-dom";
 
-function SideBar() {
+function SideBar({ setShowSidebar }) {
   const data = [
     {
       icon_img:
@@ -46,16 +47,25 @@ function SideBar() {
   }, []);
 
   return (
-    <>
+    <div onClick={() => setShowSidebar(false)}>
       <SubCard data={data[0]} />
       <SubCard data={data[1]} />
-      {/* <h3
+      <Link
+        to={"/"}
+        style={{ width: "auto", display: "flex", justifyContent: "center" }}
+        className="label noselect cursor-pointer"
+      >
+        Home
+      </Link>
+      <br />
+      <Link
+        to={"/liked"}
         style={{ width: "auto", display: "flex", justifyContent: "center" }}
         className="label noselect cursor-pointer"
       >
         Liked Posts
-      </h3> */}
-      {/* <br /> */}
+      </Link>
+      <br />
       <hr style={{ opacity: ".5", marginBottom: "10px" }} />
       {/* <br /> */}
       <h3>Subscribed subs</h3>
@@ -73,7 +83,7 @@ function SideBar() {
       <br />
       <br />
       <br />
-    </>
+    </div>
   );
 }
 

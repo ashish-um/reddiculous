@@ -11,7 +11,7 @@ import { useParams } from "react-router-dom";
 
 // import { spinner } from "../../public/spinner2.gif";
 
-function Posts({ setParam, setCommentsData, setPostLoad }) {
+function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
   const [data, setData] = useState([]);
   const [m_after, setAfter] = useState("");
   const [clicked, SetClicked] = useState(0);
@@ -99,6 +99,20 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
       //     sessionStorage.removeItem(item);
       //   }
       // }
+    } else if (liked) {
+      for (var item in localItems) {
+        if (item.startsWith("del_liked")) {
+          sessionStorage.removeItem(item);
+        }
+      }
+      setLocalItems(
+        `del_likedposts`,
+        `del_likedsubafter`,
+        `del_likedsubscroll`
+      );
+      cacheIt.current = true;
+      // setData(JSON.parse(localStorage.getItem("liked_posts")));
+      // console.log(JSON.parse(localStorage.getItem("liked_posts")));
     } else {
       let joinedSubsCombined = "";
 
@@ -144,7 +158,9 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
       sessionStorage.removeItem("isReloaded"); // Clean up on component unmount
       // sessionStorage.clear()
     };
-  }, [sub, post, searchParam.get("q"), sort, searchParam.get("t")]);
+  }, [sub, post, searchParam.get("q"), sort, searchParam.get("t"), liked]);
+
+  console.log("data", data);
 
   // ***********************************************************************************************************
   // ***********************************************************************************************************
@@ -162,7 +178,10 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
     const savedPage = sessionStorage.getItem(storeAfter.current);
     const savedScrollPosition = sessionStorage.getItem(storeScroll.current);
 
-    if (!savedData || (!firstLoad && cacheIt.current) || (post && id)) {
+    if (
+      (!savedData || (!firstLoad && cacheIt.current) || (post && id)) &&
+      !liked
+    ) {
       var options = {
         method: "GET",
         url: URL.current,
@@ -208,6 +227,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
             }
 
             setData(combinedData);
+            console.log("combined Data", combinedData);
             setAfter(response.data.data.after);
 
             if (cacheIt.current) {
@@ -233,6 +253,13 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
         .finally(() => {
           loading.current = false;
         });
+    } else if (!savedData && liked) {
+      sessionStorage.setItem(
+        storeData.current,
+        localStorage.getItem("liked_posts")
+      );
+      setAfter(null);
+      setData(JSON.parse(localStorage.getItem("liked_posts")));
     } else {
       console.log("scolling should have been");
       if (cacheIt.current) {
@@ -291,7 +318,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
       window.innerHeight + document.documentElement.scrollTop + 300 >=
       document.documentElement.scrollHeight
     ) {
-      if (!loading.current) {
+      if (!loading.current && !liked) {
         loading.current = true;
 
         SetClicked((clicked) => clicked + 1);
@@ -311,7 +338,7 @@ function Posts({ setParam, setCommentsData, setPostLoad }) {
   return (
     <div className="container">
       {/* {sub && <h2 className="post-title">r/{sub}</h2>} */}
-      {data.length ? (
+      {data?.length ? (
         <>
           {data.map((item, index) => {
             let l_item = item.data;

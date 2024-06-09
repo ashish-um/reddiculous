@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, json } from "react-router-dom";
 import { RWebShare } from "react-web-share";
 import { BrowserView, MobileView } from "react-device-detect";
 import { useState } from "react";
@@ -92,10 +92,6 @@ function Card({ children, data, crosspost }) {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           getSubImage();
-          // console.log("Intersecting", data);
-          // SetPlay(true); intersectings
-        } else {
-          // SetPlay(false);  not intersecting
         }
       });
     };
@@ -107,7 +103,7 @@ function Card({ children, data, crosspost }) {
     });
 
     // Observe the video element
-    if (!sub) {
+    if (!sub || sub === "all" || sub === "popular") {
       observer.observe(cardElement);
       // localStorage.setItem("sub_images", JSON.stringify(testImageData));
       // Cleanup the observer on component unmount
@@ -124,6 +120,12 @@ function Card({ children, data, crosspost }) {
       setTimeout(() => SetLocalDataLoaded(1), 340);
       setTimeout(() => SetLocalDataLoaded(2), 1240);
     }
+
+    SetUpvoted(
+      (JSON.parse(localStorage.getItem("liked_posts")) || []).some(
+        (element) => element.data.id === data.id
+      )
+    );
   }, []);
 
   return (
@@ -195,6 +197,13 @@ function Card({ children, data, crosspost }) {
             className="cursor-pointer"
             onClick={() => {
               SetUpvoted((vote) => !vote);
+              const storedLikedPosts =
+                JSON.parse(localStorage.getItem("liked_posts")) || [];
+              // storedLikedPosts.push({ data: data });
+              localStorage.setItem(
+                "liked_posts",
+                JSON.stringify([{ data: data }, ...storedLikedPosts])
+              );
               SetDownvoted(false);
             }}
             style={{
