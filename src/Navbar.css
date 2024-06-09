@@ -116,8 +116,9 @@
   top: 50%;
   padding: 16px 22px;
   transform: translate(-50%, -50%);
-  /* box-shadow: black 0px 0px 10px 10px; */
-  /* overflow-y: scroll; */
+  box-shadow: var(--body-background) 0px 0px 30px 10px;
+  overflow: hidden;
+  overflow-y: scroll;
   max-width: var(--max-card-width);
   opacity: 0;
   transition: all 200ms;
@@ -207,5 +208,8 @@ form input:focus {
   }
   .navsize {
     height: 40px;
+  }
+  .settings {
+    scrollbar-width: thin;
   }
 }

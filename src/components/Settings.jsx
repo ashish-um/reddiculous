@@ -122,6 +122,51 @@ function Settings() {
     );
   }
 
+  function ButtonElement({ children, items = [] }) {
+    const [clicked, SetCLicked] = useState(false);
+
+    function handleClick() {
+      SetCLicked(true);
+      if (items.includes("all")) {
+        localStorage.clear();
+      } else {
+        items.forEach((element) => {
+          localStorage.removeItem(element);
+        });
+      }
+    }
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          // justifyContent: "",
+          gap: "20px",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <h2 style={{ fontSize: childHeadingfontClamp }}>{children}</h2>
+          {clicked && (
+            <p style={{ color: "var(--success-color)" }}>requires refresh</p>
+          )}
+        </div>
+        <div
+          className="label clickable"
+          style={{
+            background: clicked ? "var(--success-color)" : "var(--nsfw)",
+            padding: "0 14px",
+          }}
+          onClick={handleClick}
+        >
+          {clicked ? "cleared" : "clear"}
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     SetDefaultSettings();
 
@@ -237,6 +282,29 @@ function Settings() {
       <ToggleElement refresh={true} name={"show_nsfw"}>
         Enable Nsfw
       </ToggleElement>
+      <br />
+      <hr style={{ opacity: ".3", width: "90%", margin: "auto" }} />
+      <HeadingElement>History & Privacy</HeadingElement>
+      <ButtonElement items={["liked_posts"]}>Clear Liked</ButtonElement>
+      <br />
+      <ButtonElement items={["subscriptions"]}>
+        Clear Subscriptions
+      </ButtonElement>
+      <br />
+      <ButtonElement
+        items={[
+          "video_mute",
+          "video_autoplay",
+          "video_loop",
+          "theme",
+          "show_nsfw",
+        ]}
+      >
+        Reset Settings
+      </ButtonElement>
+      <br />
+      <ButtonElement items={["all"]}>Clear All Data</ButtonElement>
+      <br />
     </>
   );
 }
