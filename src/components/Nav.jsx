@@ -25,6 +25,7 @@ function Nav() {
 
   function handleSubmit(e) {
     e.preventDefault();
+    SetShowSearch(false);
     // SetSearchParams({ search: searchValue });
     navigate({
       pathname: `/search`,
@@ -301,12 +302,16 @@ function Nav() {
                     <input
                       type="search"
                       name="search"
+                      autoFocus
                       placeholder="Search posts, title, users..."
                       value={searchValue}
                       onChange={(e) => SetSearchValue(e.target.value)}
                     />
                     <span className="search">
-                      <svg
+                      <div style={{ width: "25px", height: "25px" }}>
+                        <SearchSvg />
+                      </div>
+                      {/* <svg
                         xmlns="http://www.w3.org/2000/svg"
                         height="25px"
                         viewBox="0 -960 960 960"
@@ -314,7 +319,7 @@ function Nav() {
                         fill="#e8eaed"
                       >
                         <path d="M380.72-353.69q-95.58 0-162-66.32-66.41-66.32-66.41-161.53 0-95.2 66.32-161.52 66.32-66.32 161.48-66.32 95.17 0 161.79 66.32 66.61 66.32 66.61 161.44 0 41.36-14.77 80.77t-40.41 68.39l242.16 241.33q4.79 4.5 5.18 11.93.38 7.43-5.18 12.74-5.57 5.31-12.61 5.31-7.05 0-12.32-5.57L529.08-408.21q-29.8 26.4-69.18 40.46-39.37 14.06-79.18 14.06Zm-.16-33.85q81.65 0 137.88-56.09 56.23-56.09 56.23-137.91t-56.23-137.91q-56.23-56.09-137.88-56.09-81.77 0-138.09 56.09-56.32 56.09-56.32 137.91t56.32 137.91q56.32 56.09 138.09 56.09Z" />
-                      </svg>
+                      </svg> */}
                     </span>
                   </div>
                 </form>

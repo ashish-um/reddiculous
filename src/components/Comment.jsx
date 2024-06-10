@@ -11,14 +11,14 @@ function Comment({ data, className, color, first }) {
   const [upvoted, SetUpvoted] = useState(false);
 
   useEffect(() => {
-    if (data?.depth > 1) {
+    if (data?.depth > 1 || data.author === "AutoModerator") {
       SetHide((hide) => (hide == 1 ? 2 : 1));
       if (hide == 1) {
         SetChildrenDisplay(true);
       } else {
         setTimeout(() => {
           SetChildrenDisplay(false);
-        }, 200);
+        }, 100);
       }
     }
 
@@ -57,17 +57,13 @@ function Comment({ data, className, color, first }) {
     const hourDiff = Math.floor((nowDate - m_date) / (1000 * 60 * 60));
 
     if (monthDiff > 0 && monthDiff < 12) {
-      return monthDiff == 1 ? "1 month ago" : `${monthDiff} months ago`;
+      return monthDiff == 1 ? "1 month" : `${monthDiff} months`;
     } else if (monthDiff >= 12) {
-      return `${Math.floor(monthDiff / 12)} years ago`;
+      return `${Math.floor(monthDiff / 12)} years`;
     } else if (dateDiff > 0) {
-      return dateDiff == 1 ? `1 day ago` : `${dateDiff} days ago`;
+      return dateDiff == 1 ? `1 day` : `${dateDiff} days`;
     } else {
-      return hourDiff == 0
-        ? "just now"
-        : hourDiff == 1
-        ? `an hour ago`
-        : `${hourDiff} hrs ago`;
+      return hourDiff == 0 ? "now" : hourDiff == 1 ? `1 h` : `${hourDiff} h`;
     }
   }
 
@@ -192,11 +188,25 @@ function Comment({ data, className, color, first }) {
             ></i>
           </Link>
 
-          <span style={{ opacity: "0.6" }}>• {handleDate(data.created)}</span>
+          <span
+            onClick={() => {
+              SetHide((hide) => (hide == 1 ? 2 : 1));
+              if (hide == 1) {
+                SetChildrenDisplay(true);
+              } else {
+                setTimeout(() => {
+                  SetChildrenDisplay(false);
+                }, 200);
+              }
+            }}
+            style={{ opacity: "0.6" }}
+          >
+            • {handleDate(data.created)}
+          </span>
         </div>
         <div
           style={{
-            fontSize: "clamp(16px, 3vw, 20px)",
+            fontSize: "--comment-font",
             padding: "10px",
             opacity: childrenDisplay ? "1" : "0",
           }}

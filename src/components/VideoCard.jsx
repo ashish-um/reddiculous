@@ -3,7 +3,7 @@ import ReactPlayer from "react-player/lazy";
 
 function VideoCard(props) {
   const [failsLoading, SetFailsLoading] = useState(false);
-  const [play, SetPlay] = useState(false);
+  const [play, SetPlay] = useState(true);
 
   const videoRef = useRef(null);
   useEffect(() => {

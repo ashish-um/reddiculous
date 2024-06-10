@@ -86,7 +86,7 @@
   /* border-bottom: 1px solid var(--primary-color); */
   background: var(--card-background);
   box-sizing: border-box;
-  margin-right: 240px;
+  margin-right: calc(var(--max-card-width) - 550px);
   pointer-events: all;
 }
 

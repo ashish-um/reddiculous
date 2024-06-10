@@ -27,7 +27,6 @@ function Settings() {
   const [themeActive, SetThemeActive] = useState(null);
   const colors = ["#7a61c1", "#008170", "#1F6E8C", "#872341"];
   const [themeColor, SetThemeColor] = useState(null);
-  const isInitialMount = useRef(true);
   const childHeadingfontClamp = "clamp(18px, 2vw, 22px)";
   const headingfontClamp = "clamp(20px, 2vw, 24px)";
 
@@ -167,6 +166,73 @@ function Settings() {
     );
   }
 
+  function DropElement({ children, sizes = [] }) {
+    const [sizeActive, SetSizeActive] = useState(null);
+    const [currentActive, SetCurrentActive] = useState("");
+
+    function work(variable, value) {
+      localStorage.setItem(variable, value);
+      document.documentElement.style.setProperty(variable, value);
+    }
+
+    useEffect(() => {
+      if (!sizeActive) {
+        if (localStorage.getItem(sizes[0].var)) {
+          console.log("Exists", sizes[0].var);
+          document.documentElement.style.setProperty(
+            sizes[0].var,
+            localStorage.getItem(sizes[0].var)
+          );
+        }
+
+        if (!localStorage.getItem(sizes[0].var)) SetCurrentActive("Normal");
+        else
+          sizes.forEach((element, index) => {
+            if (element.val === localStorage.getItem(sizes[0].var))
+              SetCurrentActive(["Small", "Normal", "Large"].at(index));
+          });
+
+        return;
+      }
+      if (sizeActive === "Small") {
+        work(sizes[0].var, sizes[0].val);
+        // SetCurrentActive(sizeActive);
+      }
+      if (sizeActive === "Normal") {
+        // SetCurrentActive(sizeActive);
+        work(sizes[0].var, sizes[1].val);
+      }
+      if (sizeActive === "Large") {
+        // SetCurrentActive(sizeActive);
+        work(sizes[0].var, sizes[2].val);
+      }
+    }, [sizeActive]);
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          // justifyContent: "",
+          gap: "20px",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
+        <h2 style={{ fontSize: childHeadingfontClamp }}>{children}</h2>
+        <DropdownV2
+          parent={true}
+          current_active={currentActive}
+          L_Activate={SetSizeActive}
+        >
+          <div className="element">Small</div>
+          <div className="element">Normal</div>
+          <div className="element">Large</div>
+        </DropdownV2>
+      </div>
+    );
+  }
+
   useEffect(() => {
     SetDefaultSettings();
 
@@ -284,6 +350,48 @@ function Settings() {
       </ToggleElement>
       <br />
       <hr style={{ opacity: ".3", width: "90%", margin: "auto" }} />
+      <HeadingElement>Layout</HeadingElement>
+      <DropElement
+        sizes={[
+          { var: "--comment-font", val: "clamp(12px, 3vw, 16px)" },
+          { val: "clamp(16px, 3vw, 20px)" },
+          { val: "clamp(18px, 3vw, 22px)" },
+        ]}
+      >
+        Comment Font
+      </DropElement>
+      <br />
+      <DropElement
+        sizes={[
+          { var: "--title-font", val: "clamp(16px, 2vw, 21px)" },
+          { val: "clamp(19px, 2vw, 25px)" },
+          { val: "clamp(22px, 2vw, 27px)" },
+        ]}
+      >
+        Title Font
+      </DropElement>
+      <br />
+      <DropElement
+        sizes={[
+          { var: "--max-card-height", val: "400px" },
+          { val: "600px" },
+          { val: "800px" },
+        ]}
+      >
+        Post Height
+      </DropElement>
+      <br />
+      <DropElement
+        sizes={[
+          { var: "--max-card-width", val: "650px" },
+          { val: "800px" },
+          { val: "1000px" },
+        ]}
+      >
+        Post Width
+      </DropElement>
+      <br />
+      <hr style={{ opacity: ".3", width: "90%", margin: "auto" }} />
       <HeadingElement>History & Privacy</HeadingElement>
       <ButtonElement items={["liked_posts"]}>Clear Liked</ButtonElement>
       <br />
@@ -298,6 +406,10 @@ function Settings() {
           "video_loop",
           "theme",
           "show_nsfw",
+          "--max-card-width",
+          "--max-card-height",
+          "--title-font",
+          "--comment-font",
         ]}
       >
         Reset Settings

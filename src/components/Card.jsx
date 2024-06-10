@@ -158,7 +158,7 @@ function Card({ children, data, crosspost }) {
               to={"/" + data.subreddit_name_prefixed}
             >
               <img
-                src={subImage}
+                src={subImage || "/reddiculous/icon_big.png"}
                 alt=""
                 width={30}
                 height={30}
@@ -192,6 +192,7 @@ function Card({ children, data, crosspost }) {
         <Link to={data.permalink}>
           <h2
             className="card-title"
+            // style={{ fontSize: "10px" }}
             dangerouslySetInnerHTML={{
               __html: `${data.title}`,
             }}
