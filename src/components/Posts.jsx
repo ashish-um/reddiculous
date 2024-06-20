@@ -14,287 +14,170 @@ import { useParams } from "react-router-dom";
 function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
   const [data, setData] = useState([]);
   const [m_after, setAfter] = useState("");
-  const [clicked, SetClicked] = useState(0);
-  const [reqError, SetReqError] = useState("");
+  const [clicked, setClicked] = useState(0);
+  const [reqError, setReqError] = useState("");
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const loading = useRef(false);
   const { sub, id, post, user, sort } = useParams();
   // const URL = useRef(`https://old.reddit.com/r/${sub ? sub : "popular"}.json`);
   const URL = useRef();
-  const [searchParam, SetSearchParams] = useSearchParams({
+  const [searchParam, setSearchParams] = useSearchParams({
     q: "",
     sort: "",
     t: "",
   });
 
-  const [firstLoad, SetFirstLoad] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true);
 
   const storeData = useRef("main-data");
   const storeAfter = useRef("main-data-after");
   const storeScroll = useRef("scroll");
   const cacheIt = useRef();
 
-  // console.log("Search:", searchParam.get("q"));
-  // URL.current = user && `https://old.reddit.com/u/${user}/submitted.json`;
-  // var URL = `https://old.reddit.com/r/${sub ? sub : "all"}.json`;
-
-  function setLocalItems(main, after, scroll) {
+  const setLocalItems = (main, after, scroll) => {
     storeData.current = main;
     storeAfter.current = after;
     storeScroll.current = scroll;
     window.scrollTo(0, 0);
-  }
+  };
+
+  const clearSessionStorage = () => {
+    Object.keys(sessionStorage).forEach((item) => {
+      if (item.startsWith("del_")) {
+        sessionStorage.removeItem(item);
+      }
+    });
+  };
+
+  const setupUrlAndCache = () => {
+    if (post && id) {
+      URL.current = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json?limit=100`;
+      cacheIt.current = false;
+    } else if (sort) {
+      setLocalItems(`del_sub${sub}`, `del_subafter${sub}`, `del_subscroll${sub}`);
+      URL.current = `https://old.reddit.com/r/${sub}/${sort}.json`;
+    } else if (sub) {
+      setLocalItems(`del_sub${sub}`, `del_subafter${sub}`, `del_subscroll${sub}`);
+      URL.current = `https://old.reddit.com/r/${sub}.json`;
+      cacheIt.current = true;
+    } else if (user) {
+      setLocalItems(`del_user${user}`, `del_userafter${user}`, `del_userscroll${user}`);
+      URL.current = `https://old.reddit.com/user/${user}/submitted.json`;
+      cacheIt.current = true;
+    } else if (searchParam.get("q")) {
+      setLocalItems(`del_search`, `del_searchafter`, `del_searchscroll`);
+      URL.current = `https://old.reddit.com/search.json`;
+      cacheIt.current = true;
+    } else {
+      let joinedSubsCombined = "";
+      const subscriptions = JSON.parse(localStorage.getItem("subscriptions"));
+      subscriptions?.forEach((element) => {
+        joinedSubsCombined += "+" + element.display_name_prefixed.slice(2);
+      });
+      URL.current = `https://old.reddit.com/r/${joinedSubsCombined || 'all'}.json`;
+      clearSessionStorage();
+    }
+  };
 
   useEffect(() => {
-    // set State Default
-    if (setParam) {
-      setParam(sub ? `r/${sub}` : "r/all");
-    }
     setData([]);
     setAfter("");
-
-    const localItems = { ...sessionStorage };
-
     cacheIt.current = true;
     storeData.current = `homedata`;
     storeAfter.current = `homeafter`;
     storeScroll.current = `homescroll`;
 
-    if (post && id) {
-      // console.log("Entered Post", post);
-      URL.current = `https://old.reddit.com/r/${sub}/comments/${id}/${post}.json?limit=100`;
-      cacheIt.current = false;
-    } else if (sort) {
-      // sessionStorage.removeItem(`del_sub${sub}`);
-      // sessionStorage.removeItem(`del_subafter${sub}`);
-      // sessionStorage.removeItem(`del_subscroll${sub}`);
-      setLocalItems(
-        `del_sub${sub}`,
-        `del_subafter${sub}`,
-        `del_subscroll${sub}`
-      );
-      URL.current = `https://old.reddit.com/r/${sub}/${sort}.json`;
-    } else if (sub) {
-      URL.current = `https://old.reddit.com/r/${sub}.json`;
-      cacheIt.current = true;
-      setLocalItems(
-        `del_sub${sub}`,
-        `del_subafter${sub}`,
-        `del_subscroll${sub}`
-      );
-    } else if (user) {
-      URL.current = `https://old.reddit.com/user/${user}/submitted.json`;
-      cacheIt.current = true;
-      setLocalItems(
-        `del_user${user}`,
-        `del_userafter${user}`,
-        `del_userscroll${user}`
-      );
-    } else if (searchParam.get("q")) {
-      URL.current = `https://old.reddit.com/search.json`;
-      cacheIt.current = true;
-      setLocalItems(`del_search`, `del_searchafter`, `del_searchscroll`);
-      // for (var item in localItems) {
-      //   if (item.startsWith("del_search")) {
-      //     sessionStorage.removeItem(item);
-      //   }
-      // }
-    } else if (liked) {
-      for (var item in localItems) {
-        if (item.startsWith("del_liked")) {
-          sessionStorage.removeItem(item);
-        }
-      }
-      setLocalItems(
-        `del_likedposts`,
-        `del_likedsubafter`,
-        `del_likedsubscroll`
-      );
-      cacheIt.current = true;
-      // setData(JSON.parse(localStorage.getItem("liked_posts")));
-      // console.log(JSON.parse(localStorage.getItem("liked_posts")));
-    } else {
-      let joinedSubsCombined = "";
+    setupUrlAndCache();
 
-      JSON.parse(localStorage.getItem("subscriptions"))?.forEach((element) => {
-        joinedSubsCombined += "+" + element.display_name_prefixed.slice(2);
-      });
-
-      // console.log(joinedSubsCombined.slice(1) ? "YES" : "NO");
-      if (joinedSubsCombined) {
-        URL.current = `https://old.reddit.com/r/${joinedSubsCombined}.json`;
-      } else {
-        URL.current = `https://old.reddit.com/r/all.json`;
-      }
-      for (var item in localItems) {
-        if (item.startsWith("del_")) {
-          sessionStorage.removeItem(item);
-        }
-      }
-    }
-
-    // setAfter(sessionStorage.getItem("main-data-after"));
-    SetReqError("");
+    setReqError("");
 
     if (!firstLoad) {
-      SetClicked(clicked == 0 ? 1 : 0);
-      // window.scrollTo(0, 0);
+      setClicked(clicked === 0 ? 1 : 0);
     }
 
-    // console.log(true);
     const handleInteraction = () => setHasUserInteracted(true);
     window.addEventListener("click", handleInteraction);
 
     if (sessionStorage.getItem("isReloaded")) {
-      // console.log("Page was reloaded");
-      // sessionStorage.removeItem("isReloaded"); // Clean up
       sessionStorage.clear();
     } else {
-      sessionStorage.setItem("isReloaded", "true"); // Set flag
+      sessionStorage.setItem("isReloaded", "true");
     }
 
     return () => {
       window.removeEventListener("click", handleInteraction);
-      sessionStorage.removeItem("isReloaded"); // Clean up on component unmount
-      // sessionStorage.clear()
+      sessionStorage.removeItem("isReloaded");
     };
-  }, [sub, post, searchParam.get("q"), sort, searchParam.get("t"), liked]);
+  }, [sub, post, searchParam.get("q"), sort, searchParam.get("t")]);
 
-  // console.log("data", data);
-
-  // ***********************************************************************************************************
-  // ***********************************************************************************************************
-  // ***********************************************************************************************************
-  // ***********************************************************************************************************
-  // ***********************************************************************************************************
-  // ***********************************************************************************************************
-  // ***********************************************************************************************************
-  // ***********************************************************************************************************
-  // console.log("FIrst Load", firstLoad);
-
-  useEffect(() => {
-    SetFirstLoad(false);
-    const savedData = JSON.parse(sessionStorage.getItem(storeData.current));
-    const savedPage = sessionStorage.getItem(storeAfter.current);
-    const savedScrollPosition = sessionStorage.getItem(storeScroll.current);
-
-    if (
-      (!savedData || (!firstLoad && cacheIt.current) || (post && id)) &&
-      !liked
-    ) {
-      var options = {
+  const fetchData = async () => {
+    try {
+      const options = {
         method: "GET",
         url: URL.current,
         params: {
           after: m_after,
           q: searchParam.get("q"),
-          include_over_18:
-            localStorage.getItem("show_nsfw") === "true" ? "on" : "",
+          include_over_18: localStorage.getItem("show_nsfw") === "true" ? "on" : "",
           sort: searchParam.get("sort"),
           t: searchParam.get("t"),
         },
       };
-      axios
-        .request(options)
-        .then((response) => {
-          // console.log(response.data.data.children.filter((item) => !item.domain));
-          if (id && post) {
-            // WE ARE IN COMMENTS PAGE
-            // console.log("checking");
-            // console.log(response.data);
-            // window.removeEventListener("scroll", handleScroll);
-            setData(response.data[0].data.children);
 
-            window.removeEventListener("scroll", handleScroll);
+      const response = await axios.request(options);
+      if (id && post) {
+        setData(response.data[0].data.children);
+        setCommentsData(response.data[1].data.children);
+        window.removeEventListener("scroll", handleScroll);
+      } else {
+        const newData = localStorage.getItem("show_nsfw") !== "true"
+          ? response.data.data.children.filter(item => !item.data.over_18)
+          : response.data.data.children;
 
-            // console.log("removed event listener");
-            setCommentsData(response.data[1].data.children);
-          } else {
-            // console.log(response.data.data.children);
+        const combinedData = [...data, ...newData];
+        setData(combinedData);
+        setAfter(response.data.data.after);
 
-            if (!response.data.data.after) {
-              window.removeEventListener("scroll", handleScroll);
-            }
-
-            let combinedData = [];
-            if (localStorage.getItem("show_nsfw") !== "true") {
-              let noNsfwData = response.data.data.children.filter(
-                (item) => !item.data.over_18
-              );
-              combinedData = [...data, ...noNsfwData];
-            } else {
-              combinedData = [...data, ...response.data.data.children];
-            }
-
-            setData(combinedData);
-            // console.log(
-            //   combinedData.filter((elem) => elem.data.post_hint === "image")
-            // );
-            console.log("combined Data", combinedData);
-            setAfter(response.data.data.after);
-
-            if (cacheIt.current) {
-              sessionStorage.setItem(
-                storeData.current,
-                JSON.stringify(combinedData)
-              );
-              sessionStorage.setItem(
-                storeAfter.current,
-                response.data.data.after
-              );
-            }
-            // window.scrollTo(0, 1000);
-          }
-          if (setPostLoad) {
-            setPostLoad(true);
-          }
-        })
-        .catch((reject) => {
-          console.log(reject.message);
-          SetReqError(reject.message);
-        })
-        .finally(() => {
-          loading.current = false;
-        });
-    } else if (!savedData && liked) {
-      sessionStorage.setItem(
-        storeData.current,
-        localStorage.getItem("liked_posts")
-      );
-      setAfter(null);
-      setData(JSON.parse(localStorage.getItem("liked_posts")));
-    } else {
-      // console.log("scolling should have been");
-      if (cacheIt.current) {
-        setData(savedData);
-        setAfter(savedPage);
-        window.scrollTo(0, 0);
-        setTimeout(() => window.scrollTo(0, savedScrollPosition), 400);
+        if (cacheIt.current) {
+          sessionStorage.setItem(storeData.current, JSON.stringify(combinedData));
+          sessionStorage.setItem(storeAfter.current, response.data.data.after);
+        }
       }
+    } catch (error) {
+      setReqError(error.message);
+    } finally {
+      loading.current = false;
     }
+  };
+
+  const handleInitialLoad = () => {
+    const savedData = JSON.parse(sessionStorage.getItem(storeData.current));
+    const savedPage = sessionStorage.getItem(storeAfter.current);
+    const savedScrollPosition = sessionStorage.getItem(storeScroll.current);
+
+    if ((!savedData || (!firstLoad && cacheIt.current) || (post && id)) && !liked) {
+      fetchData();
+    } else if (!savedData && liked) {
+      const likedPosts = localStorage.getItem("liked_posts");
+      sessionStorage.setItem(storeData.current, likedPosts);
+      setAfter(null);
+      setData(JSON.parse(likedPosts));
+    } else {
+      setData(savedData);
+      setAfter(savedPage);
+      window.scrollTo(0, 0);
+      setTimeout(() => window.scrollTo(0, savedScrollPosition), 400);
+    }
+  };
+
+  
+  useEffect(() => {
+    setFirstLoad(false);
+    handleInitialLoad();
   }, [clicked]);
   //   console.log(sub);
   // console.log(data.length);
 
-  function handleDate(l_date) {
-    const m_date = new Date(l_date * 1000);
-    const nowDate = new Date();
-
-    const yearDiff = nowDate.getFullYear() - m_date.getFullYear();
-    const monthDiff = nowDate.getMonth() - m_date.getMonth() + yearDiff * 12;
-    const dateDiff = Math.floor((nowDate - m_date) / (1000 * 60 * 60 * 24));
-    const hourDiff = Math.floor((nowDate - m_date) / (1000 * 60 * 60));
-
-    if (monthDiff > 0 && monthDiff < 12) {
-      return monthDiff == 1 ? "1 month" : `${monthDiff} months`;
-    } else if (monthDiff >= 12) {
-      return `${Math.floor(monthDiff / 12)} years`;
-    } else if (dateDiff > 0) {
-      return dateDiff == 1 ? `1 day` : `${dateDiff} days`;
-    } else {
-      return hourDiff == 0 ? "now" : hourDiff == 1 ? `1 h` : `${hourDiff} h`;
-    }
-  }
   function decodeHtml(l_html) {
     const txt = document.createElement("textarea");
     txt.innerHTML = l_html;
@@ -324,15 +207,10 @@ function Posts({ setParam, setCommentsData, setPostLoad, liked = false }) {
       if (!loading.current && !liked) {
         loading.current = true;
 
-        SetClicked((clicked) => clicked + 1);
+        setClicked((clicked) => clicked + 1);
       }
     }
   }, []);
-
-  function HandleNot(shit) {
-    console.log("Shit not supported", shit);
-    return "";
-  }
 
   function handleImage(item) {
     if (item.post_hint == "image") {

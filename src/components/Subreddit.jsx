@@ -40,13 +40,8 @@ function Subreddit() {
     "past year",
     "all time",
   ];
-  // console.log(`sort Active ${sortActive}, prevSort: ${prevSort.current}`);
-  // console.log("Active Sort Subredit:", sortActive);
 
   useEffect(() => {
-    // if (firstLoad && !searchParams.get("t")) {
-    //   navigate(`/r/${sub}/${sortActive.toLowerCase()}`);
-    // }
     console.log("sortActive", sortActive);
     console.log(
       "filter",
@@ -89,20 +84,17 @@ function Subreddit() {
   }, [topActive]);
 
   useEffect(() => {
-    // if (sub) {
-    //   document.title = "r/" + sub;
-    // }
     SetFirstLoad(true);
     var options = {
       method: "GET",
       url: `https://www.reddit.com/r/${sub}/about.json`,
-      params: {
-        // type: "sr",
-        // q: sub,
-        // include_over_18: "on",
-        // sort: "top",
-        // t: "all",
-      },
+      // params: {
+      //   type: "sr",
+      //   q: sub,
+      //   include_over_18: "on",
+      //   sort: "top",
+      //   t: "all",
+      // },
     };
     // console.log("requesting");
     axios

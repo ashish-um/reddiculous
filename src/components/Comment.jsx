@@ -145,10 +145,6 @@ function Comment({ data, className, color, first }) {
                 <UpvoteSvg />
               </div>
             ) : (
-              // <i
-              //   className="bx bxs-upvote"
-              //   style={{ transform: "translateY(-2px)" }}
-              // ></i>
               <div
                 className={`${upvoted ? "downvoted" : ""}`}
                 style={{
@@ -159,10 +155,6 @@ function Comment({ data, className, color, first }) {
               >
                 <UpvoteSvg />
               </div>
-              // <i
-              //   className="bx bxs-downvote"
-              //   style={{ transform: "translateY(-1px)" }}
-              // ></i>
             )}
           </span>
 
